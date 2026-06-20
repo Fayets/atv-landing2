@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from pony.orm import db_session, select
+from pony.orm import db_session, desc
 
 from src.models import Lead
 from src.schemas import LeadCreate, LeadUpdate
@@ -24,7 +24,7 @@ class LeadsServices:
 
     def get_all_leads(self) -> list[dict]:
         with db_session:
-            leads = select(l for l in Lead).order_by(lambda l: l.created_at.desc())[:]
+            leads = Lead.select().order_by(lambda l: desc(l.created_at))[:]
             return [self._to_dict(l) for l in leads]
 
     def get_lead_by_id(self, lead_id: int) -> dict | None:
@@ -45,7 +45,7 @@ class LeadsServices:
 
     def get_metrics(self) -> dict:
         with db_session:
-            leads = select(l for l in Lead)[:]
+            leads = Lead.select()[:]
             total = len(leads)
             contacted = sum(1 for l in leads if l.contacted)
 
