@@ -1,13 +1,14 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { fetchLeads as getLeads, updateLead } from '../api/leads'
 import styles from './DashboardPage.module.css'
 
-const MOCK_LEADS = [
-  { id: 1, name: 'Marcos Rodríguez', email: 'marcos@email.com', phone: '+54 9 11 1234-5678', situation: 'Tengo clientes pero quiero escalar', revenue: 'Entre $1.000 y $5.000/mes', obstacle: 'No tengo sistema para escalar', niche: 'Coaching / mentoría', created_at: '2026-06-18T14:32:00', contacted: false, notes: '' },
-  { id: 2, name: 'Sofía Vargas', email: 'sofi.v@gmail.com', phone: '+54 9 11 9876-5432', situation: 'Tengo contenido pero no monetizo', revenue: 'Menos de $1.000/mes', obstacle: 'No tengo una oferta clara', niche: 'Marketing / growth', created_at: '2026-06-18T11:15:00', contacted: true, notes: 'Llamé el 18/06, muy interesada. Re-contactar el lunes.' },
-  { id: 3, name: 'Lucía Pérez', email: 'luciaperez@outlook.com', phone: '+54 9 351 555-1234', situation: 'Arranco desde cero', revenue: 'Aún no factura nada', obstacle: 'No sé cómo conseguir clientes', niche: 'Fitness / salud', created_at: '2026-06-17T09:00:00', contacted: false, notes: '' },
-  { id: 4, name: 'Andrés Giménez', email: 'andres.g@negocio.com', phone: '+54 9 11 4444-3333', situation: 'Tengo agencia/consultoría y quiero crecer', revenue: 'Más de $5.000/mes', obstacle: 'Mis precios son bajos', niche: 'Otro nicho de consultoría', created_at: '2026-06-17T16:45:00', contacted: true, notes: '' },
-  { id: 5, name: 'Valentina Cruz', email: 'valen.cruz@mail.com', phone: '+54 9 261 777-8888', situation: 'Tengo contenido pero no monetizo', revenue: 'Menos de $1.000/mes', obstacle: 'No tengo una oferta clara', niche: 'Coaching / mentoría', created_at: '2026-06-16T08:30:00', contacted: false, notes: '' },
-]
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+
+async function getMetrics() {
+  const res = await fetch(`${API_BASE}/leads/metrics`)
+  if (!res.ok) throw new Error('No se pudieron cargar las métricas')
+  return res.json()
+}
 
 function phoneToWa(phone) {
   const digits = phone.replace(/\D/g, '')
@@ -31,34 +32,9 @@ function formatDateFull(iso) {
   })
 }
 
-function countByField(leads, field) {
-  const counts = {}
-  for (const lead of leads) {
-    const key = lead[field] || 'Sin dato'
-    counts[key] = (counts[key] || 0) + 1
-  }
-  return Object.entries(counts).sort((a, b) => b[1] - a[1])
-}
-
-function last14Days(leads) {
-  const days = []
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-
-  for (let i = 13; i >= 0; i -= 1) {
-    const date = new Date(today)
-    date.setDate(today.getDate() - i)
-    const key = date.toISOString().slice(0, 10)
-    days.push({ key, label: formatDateShort(date.toISOString()), count: 0 })
-  }
-
-  for (const lead of leads) {
-    const key = lead.created_at.slice(0, 10)
-    const bucket = days.find((d) => d.key === key)
-    if (bucket) bucket.count += 1
-  }
-
-  return days
+function objectToSortedEntries(obj) {
+  if (!obj) return []
+  return Object.entries(obj).sort((a, b) => b[1] - a[1])
 }
 
 function downloadFile(filename, content, mime) {
@@ -113,13 +89,47 @@ function HorizontalBar({ label, value, max }) {
 }
 
 export default function DashboardPage() {
-  const [leads, setLeads] = useState(MOCK_LEADS)
+  const [leads, setLeads] = useState([])
+  const [metricsData, setMetricsData] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [nicheFilter, setNicheFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [selectedId, setSelectedId] = useState(null)
   const [noteDraft, setNoteDraft] = useState('')
-  const niches = useMemo(() => [...new Set(leads.map((l) => l.niche))].sort(), [leads])
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadDashboard() {
+      setLoading(true)
+      try {
+        const [leadsResult, metricsResult] = await Promise.all([
+          getLeads(),
+          getMetrics(),
+        ])
+        if (!cancelled) {
+          setLeads(leadsResult)
+          setMetricsData(metricsResult)
+        }
+      } catch {
+        if (!cancelled) {
+          setLeads([])
+          setMetricsData(null)
+        }
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+
+    loadDashboard()
+    return () => { cancelled = true }
+  }, [])
+
+  const niches = useMemo(
+    () => [...new Set(leads.map((l) => l.niche).filter(Boolean))].sort(),
+    [leads],
+  )
 
   const filteredLeads = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -137,24 +147,38 @@ export default function DashboardPage() {
   }, [leads, search, nicheFilter, statusFilter])
 
   const metrics = useMemo(() => {
-    const total = leads.length
-    const contacted = leads.filter((l) => l.contacted).length
-    const pending = total - contacted
+    const total = metricsData?.total ?? 0
+    const contacted = metricsData?.contacted ?? 0
+    const pending = metricsData?.pending ?? 0
     const rate = total > 0 ? Math.round((contacted / total) * 100) : 0
     return { total, pending, contacted, rate }
-  }, [leads])
+  }, [metricsData])
 
-  const dailyData = useMemo(() => last14Days(leads), [leads])
+  const dailyData = useMemo(() => (
+    (metricsData?.daily ?? []).map((day) => ({
+      key: day.date,
+      label: formatDateShort(day.date),
+      count: day.count,
+    }))
+  ), [metricsData])
+
   const maxDaily = useMemo(() => Math.max(...dailyData.map((d) => d.count), 1), [dailyData])
-  const nicheData = useMemo(() => countByField(leads, 'niche'), [leads])
-  const situationData = useMemo(() => countByField(leads, 'situation'), [leads])
+  const nicheData = useMemo(() => objectToSortedEntries(metricsData?.by_niche), [metricsData])
+  const situationData = useMemo(() => objectToSortedEntries(metricsData?.by_situation), [metricsData])
   const maxNiche = nicheData[0]?.[1] ?? 1
   const maxSituation = situationData[0]?.[1] ?? 1
 
   const selectedLead = leads.find((l) => l.id === selectedId) ?? null
 
-  const toggleContacted = (id) => {
-    setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, contacted: !l.contacted } : l)))
+  const toggleContacted = async (id) => {
+    const lead = leads.find((l) => l.id === id)
+    if (!lead) return
+    try {
+      const updated = await updateLead(id, { contacted: !lead.contacted })
+      setLeads((prev) => prev.map((l) => (l.id === id ? updated : l)))
+    } catch {
+      // keep current state on error
+    }
   }
 
   const openPanel = (lead) => {
@@ -164,9 +188,35 @@ export default function DashboardPage() {
 
   const closePanel = () => setSelectedId(null)
 
-  const saveNote = () => {
+  const saveNote = async () => {
     if (!selectedLead) return
-    setLeads((prev) => prev.map((l) => (l.id === selectedLead.id ? { ...l, notes: noteDraft } : l)))
+    try {
+      const updated = await updateLead(selectedLead.id, { notes: noteDraft })
+      setLeads((prev) => prev.map((l) => (l.id === selectedLead.id ? updated : l)))
+    } catch {
+      // keep current state on error
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <nav className={styles.navbar}>
+          <div className={styles.navLeft}>
+            <img
+              src="/ATVLogin.png"
+              alt="ATV — Aumenta Tu Valor"
+              className={styles.logo}
+              width={32}
+              height={32}
+            />
+          </div>
+        </nav>
+        <main className={styles.content}>
+          <p className={styles.cellMuted}>Cargando...</p>
+        </main>
+      </div>
+    )
   }
 
   return (
@@ -311,38 +361,43 @@ export default function DashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredLeads.map((lead) => (
-                  <tr key={lead.id} onClick={() => openPanel(lead)}>
-                    <td className={styles.cellMuted}>{lead.id}</td>
-                    <td className={styles.cellName}>{lead.name}</td>
-                    <td className={styles.cellMuted}>{lead.email}</td>
-                    <td>
-                      <a
-                        href={phoneToWa(lead.phone)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.waLink}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <i className="ti ti-brand-whatsapp" />
-                        {lead.phone}
-                      </a>
-                    </td>
-                    <td><span className={styles.nicheBadge}>{lead.niche}</span></td>
-                    <td className={styles.cellMuted}>{lead.situation}</td>
-                    <td className={styles.cellMuted}>{lead.revenue}</td>
-                    <td className={styles.cellMuted}>{lead.obstacle}</td>
-                    <td className={styles.cellMuted}>{formatDateShort(lead.created_at)}</td>
-                    <td>
-                      <StatusPill contacted={lead.contacted} onClick={() => toggleContacted(lead.id)} />
-                    </td>
-                    <td>
-                      <button type="button" className={styles.rowAction} onClick={(e) => { e.stopPropagation(); openPanel(lead) }}>
-                        <i className="ti ti-chevron-right" />
-                      </button>
-                    </td>
+                {filteredLeads.length === 0 ? (
+                  <tr>
+                    <td colSpan={11} className={styles.cellMuted}>Sin leads todavía</td>
                   </tr>
-                ))}
+                ) : (
+                  filteredLeads.map((lead) => (
+                    <tr key={lead.id} onClick={() => openPanel(lead)}>
+                      <td className={styles.cellMuted}>{lead.id}</td>
+                      <td className={styles.cellName}>{lead.name}</td>
+                      <td className={styles.cellMuted}>{lead.email}</td>
+                      <td>
+                        <a
+                          href={phoneToWa(lead.phone)}
+                          rel="noopener noreferrer"
+                          className={styles.waLink}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <i className="ti ti-brand-whatsapp" />
+                          {lead.phone}
+                        </a>
+                      </td>
+                      <td><span className={styles.nicheBadge}>{lead.niche}</span></td>
+                      <td className={styles.cellMuted}>{lead.situation}</td>
+                      <td className={styles.cellMuted}>{lead.revenue}</td>
+                      <td className={styles.cellMuted}>{lead.obstacle}</td>
+                      <td className={styles.cellMuted}>{formatDateShort(lead.created_at)}</td>
+                      <td>
+                        <StatusPill contacted={lead.contacted} onClick={() => toggleContacted(lead.id)} />
+                      </td>
+                      <td>
+                        <button type="button" className={styles.rowAction} onClick={(e) => { e.stopPropagation(); openPanel(lead) }}>
+                          <i className="ti ti-chevron-right" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

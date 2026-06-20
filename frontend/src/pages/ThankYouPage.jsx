@@ -1,8 +1,12 @@
+import { useEffect } from 'react'
 import styles from './ThankYouPage.module.css'
 
 const WA_NUMBER = import.meta.env.VITE_WA_NUMBER || '5491112345678'
 
 export default function ThankYouPage({ data }) {
+  useEffect(() => {
+    document.title = 'ATV - Thanks you Page'
+  }, [])
   const msg = encodeURIComponent(
     `Hola! Acabo de hacer el diagnóstico de escalabilidad ATV.\n` +
     `Nombre: ${data?.name}\n` +
