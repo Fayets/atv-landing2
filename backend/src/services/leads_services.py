@@ -10,20 +10,30 @@ from src.schemas import LeadCreate, LeadUpdate
 class LeadsServices:
     def create_lead(self, data: LeadCreate) -> dict:
         with db_session:
-            lead = Lead(
-                name=data.name,
-                email=data.email,
-                phone=data.phone,
-                avatar=data.avatar,
-                bottleneck_areas=json.dumps(data.bottleneck_areas or []),
-                bottleneck_marketing=json.dumps(data.bottleneck_marketing or []),
-                bottleneck_ventas=json.dumps(data.bottleneck_ventas or []),
-                bottleneck_producto=json.dumps(data.bottleneck_producto or []),
-                bottleneck_sistemas=json.dumps(data.bottleneck_sistemas or []),
-                revenue=data.revenue,
-                created_at=datetime.utcnow(),
-                contacted=False,
-            )
+            lead_kwargs = {
+                "name": data.name,
+                "email": data.email,
+                "phone": data.phone,
+                "created_at": datetime.utcnow(),
+                "contacted": False,
+            }
+
+            if data.avatar is not None:
+                lead_kwargs["avatar"] = data.avatar
+            if data.bottleneck_areas:
+                lead_kwargs["bottleneck_areas"] = json.dumps(data.bottleneck_areas)
+            if data.bottleneck_marketing:
+                lead_kwargs["bottleneck_marketing"] = json.dumps(data.bottleneck_marketing)
+            if data.bottleneck_ventas:
+                lead_kwargs["bottleneck_ventas"] = json.dumps(data.bottleneck_ventas)
+            if data.bottleneck_producto:
+                lead_kwargs["bottleneck_producto"] = json.dumps(data.bottleneck_producto)
+            if data.bottleneck_sistemas:
+                lead_kwargs["bottleneck_sistemas"] = json.dumps(data.bottleneck_sistemas)
+            if data.revenue is not None:
+                lead_kwargs["revenue"] = data.revenue
+
+            lead = Lead(**lead_kwargs)
             return {"ok": True, "id": lead.id}
 
     def get_all_leads(self) -> list[dict]:
