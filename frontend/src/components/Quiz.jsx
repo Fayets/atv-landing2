@@ -183,17 +183,19 @@ export default function Quiz({ onComplete }) {
 
   const handleNext = async () => {
     if (step.type === 'form') {
-      submitLead({
-        name: form.name,
-        email: form.email,
-        phone: form.phone,
-      })
-        .then((res) => {
-          if (res?.id) setLeadId(res.id)
+      try {
+        const res = await submitLead({
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
         })
-        .catch((e) => {
-          console.error('Error al guardar contacto:', e)
-        })
+        if (res?.id) {
+          setLeadId(res.id)
+          leadIdRef.current = res.id
+        }
+      } catch (e) {
+        console.error('Error al guardar contacto:', e)
+      }
       setCurrent((c) => c + 1)
       return
     }
