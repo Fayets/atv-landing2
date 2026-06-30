@@ -3,6 +3,7 @@ import Quiz from '../components/Quiz'
 import Diagnosis from '../components/Diagnosis'
 import QualifyingQuestions from '../components/QualifyingQuestions'
 import InstagramSuccess from '../components/InstagramSuccess'
+import { buildWhatsappUrl } from '../utils/buildWhatsappMessage'
 import styles from './LandingPage.module.css'
 
 function toDiagnosisAnswers(quizPayload) {
@@ -33,11 +34,12 @@ export default function LandingPage({ onComplete }) {
   }
 
   const handleQualifyingComplete = (qualifyingData) => {
-    onComplete({
+    const fullData = {
       ...quizAnswers,
       diagnosisText,
       ...qualifyingData,
-    })
+    }
+    window.location.href = buildWhatsappUrl(fullData)
   }
 
   const renderFlow = () => {
