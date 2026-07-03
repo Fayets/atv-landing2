@@ -2,23 +2,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { fetchLeads as getLeads, updateLead } from '../api/leads'
 import styles from './DashboardPage.module.css'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
-
-const BOTTLENECK_AREA_OPTIONS = ['Marketing', 'Ventas', 'Producto', 'Sistemas']
-
-const AREA_FIELD_MAP = {
-  Marketing: 'bottleneck_marketing',
-  Ventas: 'bottleneck_ventas',
-  Producto: 'bottleneck_producto',
-  Sistemas: 'bottleneck_sistemas',
-}
-
-async function getMetrics() {
-  const res = await fetch(`${API_BASE}/leads/metrics`)
-  if (!res.ok) throw new Error('No se pudieron cargar las métricas')
-  return res.json()
-}
-
 function phoneToWa(phone) {
   const digits = phone.replace(/\D/g, '')
   return `https://wa.me/${digits}`
@@ -41,11 +24,6 @@ function formatDateFull(iso) {
   })
 }
 
-function objectToSortedEntries(obj) {
-  if (!obj) return []
-  return Object.entries(obj).sort((a, b) => b[1] - a[1])
-}
-
 function downloadFile(filename, content, mime) {
   const blob = new Blob([content], { type: mime })
   const url = URL.createObjectURL(blob)
@@ -63,18 +41,11 @@ function exportEmails(leads) {
 
 function exportCsv(leads) {
   const headers = [
-    'id', 'name', 'email', 'phone', 'avatar',
-    'bottleneck_areas', 'bottleneck_marketing', 'bottleneck_ventas',
-    'bottleneck_producto', 'bottleneck_sistemas', 'revenue',
+    'id', 'name', 'email', 'phone', 'access_code',
     'created_at', 'contacted', 'notes',
   ]
-  const formatField = (lead, key) => {
-    const value = lead[key]
-    if (Array.isArray(value)) return value.join(' | ')
-    return value
-  }
   const escape = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`
-  const rows = leads.map((l) => headers.map((h) => escape(formatField(l, h))).join(','))
+  const rows = leads.map((l) => headers.map((h) => escape(l[h])).join(','))
   downloadFile('atv-leads.csv', [headers.join(','), ...rows].join('\n'), 'text/csv;charset=utf-8')
 }
 
@@ -94,26 +65,10 @@ function StatusPill({ contacted, onClick, fullWidth = false }) {
   )
 }
 
-function HorizontalBar({ label, value, max }) {
-  const pct = max > 0 ? (value / max) * 100 : 0
-  return (
-    <div className={styles.hBarRow}>
-      <span className={styles.hBarLabel} title={label}>{label}</span>
-      <div className={styles.hBarTrack}>
-        <div className={styles.hBarFill} style={{ width: `${pct}%` }} />
-      </div>
-      <span className={styles.hBarValue}>{value}</span>
-    </div>
-  )
-}
-
 export default function DashboardPage() {
   const [leads, setLeads] = useState([])
-  const [metricsData, setMetricsData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [areaFilter, setAreaFilter] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
   const [selectedId, setSelectedId] = useState(null)
   const [noteDraft, setNoteDraft] = useState('')
 
@@ -123,19 +78,10 @@ export default function DashboardPage() {
     async function loadDashboard() {
       setLoading(true)
       try {
-        const [leadsResult, metricsResult] = await Promise.all([
-          getLeads(),
-          getMetrics(),
-        ])
-        if (!cancelled) {
-          setLeads(leadsResult)
-          setMetricsData(metricsResult)
-        }
+        const leadsResult = await getLeads()
+        if (!cancelled) setLeads(leadsResult)
       } catch {
-        if (!cancelled) {
-          setLeads([])
-          setMetricsData(null)
-        }
+        if (!cancelled) setLeads([])
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -147,47 +93,21 @@ export default function DashboardPage() {
 
   const filteredLeads = useMemo(() => {
     const q = search.trim().toLowerCase()
-    return leads.filter((lead) => {
-      if (areaFilter && !(lead.bottleneck_areas || []).includes(areaFilter)) return false
-      if (statusFilter === 'pending' && lead.contacted) return false
-      if (statusFilter === 'contacted' && !lead.contacted) return false
-      if (!q) return true
-      return (
-        lead.name.toLowerCase().includes(q)
-        || lead.email.toLowerCase().includes(q)
-        || lead.phone.toLowerCase().includes(q)
-      )
-    })
-  }, [leads, search, areaFilter, statusFilter])
+    if (!q) return leads
+    return leads.filter((lead) => (
+      lead.name.toLowerCase().includes(q)
+      || lead.email.toLowerCase().includes(q)
+      || lead.phone.toLowerCase().includes(q)
+    ))
+  }, [leads, search])
 
   const metrics = useMemo(() => {
-    const total = metricsData?.total ?? 0
-    const contacted = metricsData?.contacted ?? 0
-    const pending = metricsData?.pending ?? 0
+    const total = leads.length
+    const contacted = leads.filter((l) => l.contacted).length
+    const pending = total - contacted
     const rate = total > 0 ? Math.round((contacted / total) * 100) : 0
     return { total, pending, contacted, rate }
-  }, [metricsData])
-
-  const dailyData = useMemo(() => (
-    (metricsData?.daily ?? []).map((day) => ({
-      key: day.date,
-      label: formatDateShort(day.date),
-      count: day.count,
-    }))
-  ), [metricsData])
-
-  const maxDaily = useMemo(() => Math.max(...dailyData.map((d) => d.count), 1), [dailyData])
-  const avatarData = useMemo(() => objectToSortedEntries(metricsData?.by_avatar), [metricsData])
-  const bottleneckAreaData = useMemo(() => objectToSortedEntries(metricsData?.by_bottleneck_area), [metricsData])
-  const subObstacleData = useMemo(
-    () => objectToSortedEntries(metricsData?.by_sub_obstacle).slice(0, 8),
-    [metricsData],
-  )
-  const revenueData = useMemo(() => objectToSortedEntries(metricsData?.by_revenue), [metricsData])
-  const maxAvatar = avatarData[0]?.[1] ?? 1
-  const maxBottleneckArea = bottleneckAreaData[0]?.[1] ?? 1
-  const maxSubObstacle = subObstacleData[0]?.[1] ?? 1
-  const maxRevenue = revenueData[0]?.[1] ?? 1
+  }, [leads])
 
   const selectedLead = leads.find((l) => l.id === selectedId) ?? null
 
@@ -258,14 +178,14 @@ export default function DashboardPage() {
         <section className={styles.metricsGrid}>
           <div className={styles.metricCard}>
             <div className={styles.metricHead}>
-              <span className={styles.metricLabel}>Leads totales</span>
+              <span className={styles.metricLabel}>Total registrados</span>
               <i className="ti ti-users" />
             </div>
             <div className={styles.metricNum}>{metrics.total}</div>
           </div>
           <div className={`${styles.metricCard} ${styles.metricHighlight}`}>
             <div className={styles.metricHead}>
-              <span className={styles.metricLabel}>Pendientes</span>
+              <span className={styles.metricLabel}>Pendientes de contacto</span>
               <i className="ti ti-clock" />
             </div>
             <div className={`${styles.metricNum} ${styles.metricNumRed}`}>{metrics.pending}</div>
@@ -286,62 +206,6 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        <section className={styles.chartsGrid}>
-          <div className={`${styles.chartCard} ${styles.chartCardDaily}`}>
-            <h2 className={styles.chartTitle}>Leads últimos 14 días</h2>
-            <div className={styles.barChart}>
-              {dailyData.map((day) => (
-                <div key={day.key} className={styles.barCol}>
-                  <div className={styles.barTrack}>
-                    <div
-                      className={styles.barFill}
-                      style={{
-                        height: day.count > 0
-                          ? `${Math.max((day.count / maxDaily) * 100, 2)}%`
-                          : '0',
-                        minHeight: day.count > 0 ? 2 : 0,
-                      }}
-                    />
-                  </div>
-                  <span className={styles.barLabel}>{day.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className={styles.chartCard}>
-            <h2 className={styles.chartTitle}>Por avatar</h2>
-            <div className={styles.hBarList}>
-              {avatarData.map(([label, value]) => (
-                <HorizontalBar key={label} label={label} value={value} max={maxAvatar} />
-              ))}
-            </div>
-          </div>
-          <div className={styles.chartCard}>
-            <h2 className={styles.chartTitle}>Por área de cuello de botella</h2>
-            <div className={styles.hBarList}>
-              {bottleneckAreaData.map(([label, value]) => (
-                <HorizontalBar key={label} label={label} value={value} max={maxBottleneckArea} />
-              ))}
-            </div>
-          </div>
-          <div className={styles.chartCard}>
-            <h2 className={styles.chartTitle}>Top sub-obstáculos</h2>
-            <div className={styles.hBarList}>
-              {subObstacleData.map(([label, value]) => (
-                <HorizontalBar key={label} label={label} value={value} max={maxSubObstacle} />
-              ))}
-            </div>
-          </div>
-          <div className={styles.chartCard}>
-            <h2 className={styles.chartTitle}>Por facturación</h2>
-            <div className={styles.hBarList}>
-              {revenueData.map(([label, value]) => (
-                <HorizontalBar key={label} label={label} value={value} max={maxRevenue} />
-              ))}
-            </div>
-          </div>
-        </section>
-
         <section className={styles.toolbar}>
           <div className={styles.toolbarLeft}>
             <label className={styles.searchWrap}>
@@ -354,20 +218,9 @@ export default function DashboardPage() {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </label>
-            <select className={styles.select} value={areaFilter} onChange={(e) => setAreaFilter(e.target.value)}>
-              <option value="">Todas las áreas</option>
-              {BOTTLENECK_AREA_OPTIONS.map((area) => (
-                <option key={area} value={area}>{area}</option>
-              ))}
-            </select>
-            <select className={styles.select} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-              <option value="all">Todos</option>
-              <option value="pending">Pendientes</option>
-              <option value="contacted">Contactados</option>
-            </select>
           </div>
           <div className={styles.toolbarRight}>
-            <span className={styles.leadCount}>{filteredLeads.length} leads</span>
+            <span className={styles.leadCount}>{filteredLeads.length} registrados</span>
             <button type="button" className={styles.btnExportEmails} onClick={() => exportEmails(filteredLeads)}>
               <i className="ti ti-mail" />
               Exportar emails
@@ -388,9 +241,7 @@ export default function DashboardPage() {
                   <th>Nombre</th>
                   <th>Email</th>
                   <th>WhatsApp</th>
-                  <th>Avatar</th>
-                  <th>Áreas</th>
-                  <th>Facturación</th>
+                  <th>Clave de acceso</th>
                   <th>Fecha</th>
                   <th>Estado</th>
                   <th />
@@ -399,7 +250,7 @@ export default function DashboardPage() {
               <tbody>
                 {filteredLeads.length === 0 ? (
                   <tr>
-                    <td colSpan={10} className={styles.cellMuted}>Sin leads todavía</td>
+                    <td colSpan={8} className={styles.cellMuted}>Sin registrados todavía</td>
                   </tr>
                 ) : (
                   filteredLeads.map((lead) => (
@@ -418,15 +269,9 @@ export default function DashboardPage() {
                           {lead.phone}
                         </a>
                       </td>
-                      <td className={styles.cellMuted}>{lead.avatar}</td>
                       <td>
-                        <div className={styles.areaBadges}>
-                          {(lead.bottleneck_areas || []).map((area) => (
-                            <span key={area} className={styles.nicheBadge}>{area}</span>
-                          ))}
-                        </div>
+                        <span className={styles.accessCode}>{lead.access_code}</span>
                       </td>
-                      <td className={styles.cellMuted}>{lead.revenue}</td>
                       <td className={styles.cellMuted}>{formatDateShort(lead.created_at)}</td>
                       <td>
                         <StatusPill contacted={lead.contacted} onClick={() => toggleContacted(lead.id)} />
@@ -472,33 +317,13 @@ export default function DashboardPage() {
             </section>
 
             <section className={styles.panelSection}>
-              <h3 className={styles.panelSectionTitle}>Respuestas del quiz</h3>
-              <div className={styles.quizField}>
-                <span className={styles.quizLabel}>Avatar</span>
-                <div className={styles.quizValue}>{selectedLead.avatar}</div>
-              </div>
-              <div className={styles.quizField}>
-                <span className={styles.quizLabel}>Facturación</span>
-                <div className={styles.quizValue}>{selectedLead.revenue}</div>
-              </div>
+              <h3 className={styles.panelSectionTitle}>Clave de acceso</h3>
+              <div className={styles.panelAccessCode}>{selectedLead.access_code}</div>
             </section>
 
             <section className={styles.panelSection}>
-              <h3 className={styles.panelSectionTitle}>Cuello de botella — detalle</h3>
-              {(selectedLead.bottleneck_areas || []).map((area) => {
-                const field = AREA_FIELD_MAP[area]
-                const subs = selectedLead[field] || []
-                return (
-                  <div key={area} className={styles.bottleneckBlock}>
-                    <div className={styles.bottleneckAreaTitle}>{area}</div>
-                    <ul className={styles.bottleneckSubList}>
-                      {subs.map((opt) => (
-                        <li key={opt} className={styles.bottleneckSubItem}>{opt}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )
-              })}
+              <h3 className={styles.panelSectionTitle}>Fecha de registro</h3>
+              <p className={styles.panelMeta}>{formatDateFull(selectedLead.created_at)}</p>
             </section>
 
             <section className={styles.panelSection}>
@@ -516,7 +341,7 @@ export default function DashboardPage() {
                 className={styles.notesArea}
                 value={noteDraft}
                 onChange={(e) => setNoteDraft(e.target.value)}
-                placeholder="Agregar notas sobre este lead..."
+                placeholder="Agregar notas sobre este registrado..."
                 rows={4}
               />
               <button type="button" className={styles.btnSaveNote} onClick={saveNote}>
