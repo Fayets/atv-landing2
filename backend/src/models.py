@@ -1,4 +1,4 @@
-from pony.orm import Required, Optional, Set
+from pony.orm import Required, Optional
 from datetime import datetime
 from src.db import db, DB_SCHEMA
 
@@ -9,17 +9,7 @@ class Lead(db.Entity):
     name         = Required(str)
     email        = Required(str)
     phone        = Required(str)
-
-    # Respuestas del quiz
-    avatar               = Optional(str)
-    bottleneck_areas     = Optional(str)   # JSON serializado: ["Marketing","Ventas"]
-    bottleneck_marketing = Optional(str)   # JSON serializado: ["...", "..."]
-    bottleneck_ventas    = Optional(str)
-    bottleneck_producto  = Optional(str)
-    bottleneck_sistemas  = Optional(str)
-    revenue              = Optional(str)
-
-    # Metadata
+    access_code  = Required(str)        # Ej: "ATV-7392"
     created_at   = Required(datetime, default=datetime.utcnow)
     contacted    = Required(bool, default=False)
     notes        = Optional(str)
