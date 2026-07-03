@@ -1,65 +1,16 @@
-import random
 from datetime import datetime
-from pony.orm import db_session, flush
+from pony.orm import db_session
 from src.models import Lead
-from src.schemas import LeadCreate, LeadUpdate
-
+from src.schemas import LoginRequest
 
 class LeadsServices:
 
-    def _generate_code(self) -> str:
-        number = random.randint(1000, 9999)
-        return f"ATV-{number}"
-
-    def _code_exists(self, code: str) -> bool:
+    def login(self, data: LoginRequest) -> dict | None:
         with db_session:
-            return Lead.get(access_code=code) is not None
-
-    def _unique_code(self) -> str:
-        code = self._generate_code()
-        while self._code_exists(code):
-            code = self._generate_code()
-        return code
-
-    def create_lead(self, data: LeadCreate) -> dict:
-        code = self._unique_code()
-        with db_session:
-            lead = Lead(
-                name=data.name,
-                email=data.email,
-                phone=data.phone,
-                access_code=code,
-                created_at=datetime.utcnow(),
-                contacted=False,
-            )
-            flush()
-            return {"ok": True, "id": lead.id, "access_code": lead.access_code}
-
-    def get_all_leads(self) -> list[dict]:
-        with db_session:
-            leads = list(Lead.select())
-            leads.sort(key=lambda l: l.created_at, reverse=True)
-            return [self._to_dict(l) for l in leads]
-
-    def get_lead_by_id(self, lead_id: int) -> dict | None:
-        with db_session:
-            lead = Lead.get(id=lead_id)
-            return self._to_dict(lead) if lead else None
-
-    def verify_code(self, code: str) -> dict | None:
-        with db_session:
-            lead = Lead.get(access_code=code)
-            return self._to_dict(lead) if lead else None
-
-    def update_lead(self, lead_id: int, data: LeadUpdate) -> dict | None:
-        with db_session:
-            lead = Lead.get(id=lead_id)
+            lead = Lead.get(access_code=data.access_code.strip().upper())
             if not lead:
                 return None
-            if data.contacted is not None:
-                lead.contacted = data.contacted
-            if data.notes is not None:
-                lead.notes = data.notes
+            lead.last_access = datetime.utcnow()
             return self._to_dict(lead)
 
     def _to_dict(self, lead) -> dict:
@@ -70,6 +21,5 @@ class LeadsServices:
             "phone": lead.phone,
             "access_code": lead.access_code,
             "created_at": lead.created_at.isoformat(),
-            "contacted": lead.contacted,
-            "notes": lead.notes,
+            "last_access": lead.last_access.isoformat() if lead.last_access else None,
         }

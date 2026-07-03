@@ -1,27 +1,11 @@
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
-export async function submitLead(data) {
-  const res = await fetch(`${API_BASE}/leads/`, {
+export async function loginWithCode(code) {
+  const res = await fetch(`${API_BASE}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
+    body: JSON.stringify({ access_code: code }),
   })
-  if (!res.ok) throw new Error('No se pudo completar el registro')
-  return res.json()
-}
-
-export async function fetchLeads() {
-  const res = await fetch(`${API_BASE}/leads/`)
-  if (!res.ok) throw new Error('No se pudieron cargar los registrados')
-  return res.json()
-}
-
-export async function updateLead(id, data) {
-  const res = await fetch(`${API_BASE}/leads/${id}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  })
-  if (!res.ok) throw new Error('No se pudo actualizar')
+  if (!res.ok) throw new Error('Clave inválida')
   return res.json()
 }

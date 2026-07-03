@@ -1,52 +1,47 @@
 import { useEffect, useState } from 'react'
-import DashboardPage from './pages/DashboardPage'
-import LandingPage from './pages/LandingPage'
-import AccessCodePage from './pages/AccessCodePage'
-import ProtectedRoute from './components/ProtectedRoute'
+import LoginPage from './pages/LoginPage'
+import CoursePage from './pages/CoursePage'
 
-const LEAD_STORAGE_KEY = 'atv_lead'
+const SESSION_KEY = 'atv_webinar_user'
 
-function readStoredLead() {
+function readSession() {
   try {
-    const stored = sessionStorage.getItem(LEAD_STORAGE_KEY)
-    return stored ? JSON.parse(stored) : null
-  } catch {
-    return null
-  }
+    const s = sessionStorage.getItem(SESSION_KEY)
+    return s ? JSON.parse(s) : null
+  } catch { return null }
 }
 
 export default function App() {
   const [path, setPath] = useState(() => window.location.pathname)
-  const [leadData, setLeadData] = useState(() => (
-    window.location.pathname === '/acceso' ? readStoredLead() : null
-  ))
+  const [user, setUser] = useState(() => readSession())
 
   useEffect(() => {
-    const syncPath = () => setPath(window.location.pathname)
-    window.addEventListener('popstate', syncPath)
-    return () => window.removeEventListener('popstate', syncPath)
+    const sync = () => setPath(window.location.pathname)
+    window.addEventListener('popstate', sync)
+    return () => window.removeEventListener('popstate', sync)
   }, [])
 
-  const handleComplete = (data) => {
-    sessionStorage.setItem(LEAD_STORAGE_KEY, JSON.stringify(data))
-    setLeadData(data)
-    window.history.pushState({}, '', '/acceso')
-    setPath('/acceso')
+  const handleLogin = (userData) => {
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(userData))
+    setUser(userData)
+    window.history.pushState({}, '', '/curso')
+    setPath('/curso')
   }
 
-  if (path === '/acceso') {
-    return <AccessCodePage data={leadData} />
+  const handleLogout = () => {
+    sessionStorage.removeItem(SESSION_KEY)
+    setUser(null)
+    window.history.pushState({}, '', '/')
+    setPath('/')
   }
-  if (path === '/dashboard') {
-    return (
-      <ProtectedRoute>
-        <DashboardPage />
-      </ProtectedRoute>
-    )
+
+  if (path === '/curso') {
+    if (!user) {
+      window.history.pushState({}, '', '/')
+      return <LoginPage onLogin={handleLogin} />
+    }
+    return <CoursePage user={user} onLogout={handleLogout} />
   }
-  if (path === '/') {
-    return <LandingPage onComplete={handleComplete} />
-  }
-  window.location.replace('/')
-  return null
+
+  return <LoginPage onLogin={handleLogin} />
 }
