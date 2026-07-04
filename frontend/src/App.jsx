@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import LoginPage from './pages/LoginPage'
-import CoursePage from './pages/CoursePage'
+
+const CoursePage = lazy(() => import('./pages/CoursePage'))
 
 const SESSION_KEY = 'atv_webinar_user'
 
@@ -40,7 +41,11 @@ export default function App() {
       window.history.pushState({}, '', '/')
       return <LoginPage onLogin={handleLogin} />
     }
-    return <CoursePage user={user} onLogout={handleLogout} />
+    return (
+      <Suspense fallback={null}>
+        <CoursePage user={user} onLogout={handleLogout} />
+      </Suspense>
+    )
   }
 
   return <LoginPage onLogin={handleLogin} />

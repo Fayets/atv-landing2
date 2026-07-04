@@ -5,6 +5,9 @@
   min-height: 100dvh;
   overflow: hidden;
   background: var(--bg);
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 /* NAV */
@@ -239,7 +242,7 @@
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 20px;
 }
 
 /* VIDEO */
@@ -257,6 +260,7 @@
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
+  background: #000;
 }
 
 .embed {
@@ -266,20 +270,70 @@
   border: none;
 }
 
-.placeholder {
-  aspect-ratio: 16 / 9;
+.playerPoster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  padding: 0;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(145deg, #1a1212 0%, #0a0a0a 100%);
+  overflow: hidden;
 }
 
-.placeholderText {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-  color: var(--muted);
-  opacity: 0.5;
+.posterImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.posterOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.38);
+  transition: background 0.2s;
+  pointer-events: none;
+}
+
+.playerPoster:hover .posterOverlay {
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.playBtn {
+  position: relative;
+  z-index: 1;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  transition: transform 0.2s, background 0.2s, border-color 0.2s;
+}
+
+.playerPoster:hover .playBtn {
+  transform: scale(1.06);
+  background: rgba(176, 69, 69, 0.55);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.playBtn svg {
+  width: 30px;
+  height: 30px;
+  color: rgba(255, 255, 255, 0.88);
+  margin-left: 3px;
 }
 
 /* INFO */
@@ -287,6 +341,8 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
 }
 
 .infoSection {
@@ -347,14 +403,18 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
+  width: 100%;
   padding: 10px 14px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: rgba(26,26,26,0.5);
   color: var(--muted);
+  font-family: inherit;
   font-size: 13px;
   font-weight: 500;
   text-decoration: none;
+  text-align: left;
+  cursor: pointer;
   transition: border-color 0.2s, color 0.2s, background 0.2s;
 }
 

@@ -1,25 +1,182 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import styles from './CoursePage.module.css'
+
+const posterCache = new Map()
+
+function preloadPoster(url) {
+  if (!url) return
+  const img = new Image()
+  img.decoding = 'async'
+  img.src = url
+}
+
+function getInstantPoster(url) {
+  if (!url || url === '#') return null
+
+  const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/)
+  if (yt) return `https://img.youtube.com/vi/${yt[1]}/maxresdefault.jpg`
+
+  const fathom = url.match(/fathom\.video\/share\/([^/?]+)/)
+  if (fathom) return `https://fathom.video/share/${fathom[1]}/thumbnail`
+
+  return null
+}
+
+async function fetchPoster(url) {
+  if (!url || url === '#') return null
+
+  if (url.includes('loom.com/share/')) {
+    try {
+      const res = await fetch(
+        `https://www.loom.com/v1/oembed?url=${encodeURIComponent(url)}`,
+      )
+      if (res.ok) {
+        const data = await res.json()
+        return data.thumbnail_url || null
+      }
+    } catch { /* ignore */ }
+  }
+
+  if (url.includes('vimeo.com/')) {
+    try {
+      const res = await fetch(
+        `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(url)}`,
+      )
+      if (res.ok) {
+        const data = await res.json()
+        return data.thumbnail_url || null
+      }
+    } catch { /* ignore */ }
+  }
+
+  return null
+}
+
+async function resolvePoster(url) {
+  if (!url || url === '#') return null
+  if (posterCache.has(url)) return posterCache.get(url)
+
+  const instant = getInstantPoster(url)
+  if (instant) {
+    posterCache.set(url, instant)
+    return instant
+  }
+
+  const fetched = await fetchPoster(url)
+  if (fetched) posterCache.set(url, fetched)
+  return fetched
+}
+
+function prefetchNearbyPosters(moduleId, lessonIndex) {
+  const modIdx = MODULES.findIndex(m => m.id === moduleId)
+  if (modIdx === -1) return
+
+  const mod = MODULES[modIdx]
+  const nearby = [
+    mod.lessons[lessonIndex + 1]?.url,
+    mod.lessons[lessonIndex - 1]?.url,
+    MODULES[modIdx + 1]?.lessons[0]?.url,
+  ].filter(u => u && u !== '#')
+
+  nearby.forEach(url => {
+    resolvePoster(url).then(p => p && preloadPoster(p))
+  })
+}
+
+function getEmbedUrl(url) {
+  if (!url || url === '#') return null
+
+  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/)
+  if (ytMatch) {
+    const tMatch = url.match(/[?&]t=(\d+)/)
+    const start = tMatch ? tMatch[1] : null
+    const base = `https://www.youtube.com/embed/${ytMatch[1]}`
+    const params = new URLSearchParams({
+      rel: '0',
+      modestbranding: '1',
+      ...(start ? { start } : {}),
+    })
+    return `${base}?${params}`
+  }
+
+  const vimeo = url.match(/vimeo\.com\/(\d+)/)
+  if (vimeo) return `https://player.vimeo.com/video/${vimeo[1]}?dnt=1&title=0&byline=0`
+
+  const loom = url.match(/loom\.com\/share\/([a-zA-Z0-9]+)/)
+  if (loom) return `https://www.loom.com/embed/${loom[1]}`
+
+  const fathom = url.match(/fathom\.video\/share\/([^/?]+)/)
+  if (fathom) return `https://fathom.video/embed/${fathom[1]}`
+
+  return null
+}
 
 const MODULES = [
   {
-    id: 'marketing',
-    title: 'MARKETING',
+    id: 'bases',
+    title: 'BASES',
     lessons: [
       {
-        title: 'Introducción al sistema',
-        url: '#',
-        description: 'En esta clase vas a entender el marco completo del sistema y cómo cada pieza se conecta con las demás. Es el punto de partida para todo lo que viene.',
+        title: 'Cómo funciona un negocio $100k/mes con poca gente y mucho margen',
+        url: 'https://www.youtube.com/watch?v=Ebum9B4BSSM&t=1314s',
+        resources: [
+          { title: 'Recurso', url: 'https://docs.google.com/document/d/1xGVKJDIo_AbpKTi4Fsyt1rmx7Znhi768TF6HycOETtA/copy' },
+        ],
       },
       {
-        title: 'Cómo atraer leads calificados',
-        url: '#',
-        description: 'Vas a ver exactamente qué tipo de contenido y canales generan los leads con mayor intención de compra, y cómo filtrarlos desde el primer contacto.',
+        title: 'Marketing y contenido $100k/mes',
+        url: 'https://www.youtube.com/watch?v=-AnBdcU66OM&t=2106s',
+        resources: [
+          { title: 'Recurso', url: 'https://docs.google.com/document/d/1Eq6jTcPrsP09gS3ByZE329MniH9Ai-PQafDclCFs1so/copy' },
+        ],
       },
       {
-        title: 'Contenido que convierte',
-        url: '#',
-        description: 'El contenido que vende no es el que tiene más likes. Acá vas a aprender la estructura que convierte audiencia fría en conversaciones de venta.',
+        title: 'Servicio, upsells y carga operativa $100k/mes',
+        url: 'https://www.youtube.com/watch?v=R1Cr7Xer-KE&t=1158s',
+        resources: [
+          { title: 'Recurso', url: 'https://docs.google.com/document/d/1iYjbjzKIf-xC974pFqchy4JVRvb-EFArp8_CC8b-nJk/copy' },
+        ],
+      },
+      {
+        title: 'Dónde enfocarnos para escalar a $100k/mes',
+        url: 'https://vimeo.com/1161065905',
+        resources: [
+          { title: 'SOP', url: 'https://docs.google.com/document/d/1dB_FFZUsJtv3b18RyiyHlUCKHye0Zf6AI7zJ6jSrFsA/copy' },
+        ],
+      },
+      {
+        title: 'Cómo gestionar tu energía para hacer $100k/mes',
+        url: 'https://www.loom.com/share/668e0231c3764b6e8cced95ce39322a6',
+        resources: [],
+      },
+    ],
+    resources: [],
+  },
+  {
+    id: 'equipo',
+    title: 'EQUIPO',
+    lessons: [
+      {
+        title: 'Mindset General del Equipo $100k/mes',
+        url: 'https://www.youtube.com/watch?v=yhj5Qe_WrBI&t=8s',
+        resources: [],
+      },
+      {
+        title: 'Cómo hacer que tu equipo escale el negocio por vos',
+        url: 'https://www.youtube.com/watch?v=zEv9ZD3MLrA&t=1723s',
+        resources: [
+          { title: 'Recurso', url: 'https://docs.google.com/document/d/1Reqr0JCIcl4nLdJeNZTfBlzQi00AwWSCvRj3rxt8Xg8/copy' },
+        ],
+      },
+      {
+        title: 'Cómo pagarle correctamente a tu equipo',
+        url: 'https://www.youtube.com/watch?v=7eoNiBA861k&t=389s',
+        resources: [],
+      },
+      {
+        title: 'Cómo gestionar equipos como Growth',
+        url: 'https://www.youtube.com/watch?v=y1bo6mBhehs&t=1171s',
+        resources: [],
       },
     ],
     resources: [],
@@ -29,34 +186,89 @@ const MODULES = [
     title: 'VENTAS',
     lessons: [
       {
-        title: 'La estructura de la llamada',
-        url: '#',
-        description: 'La diferencia entre cerrar y no cerrar está en los primeros 3 minutos. Vas a ver la estructura exacta que usan los closers con mayor tasa de cierre.',
+        title: 'Proceso de Ventas $100k/mes',
+        url: 'https://www.youtube.com/watch?v=pF-93BMuR2Y&t=531s',
+        resources: [],
       },
       {
-        title: 'Manejo de objeciones',
-        url: '#',
-        description: 'Las objeciones no son un problema — son una señal de interés. En esta clase vas a aprender a convertir cada objeción en un paso más hacia el cierre.',
+        title: 'Reportes de Ventas a Marketing $100k/mes',
+        url: 'https://fathom.video/share/Uv9jt7N-eyxQySYMDPmXxo-9zC8f7W59',
+        resources: [
+          { title: 'Entregable', url: 'https://miro.com/app/board/uXjVHLXMvfA=/?share_link_id=236461379933' },
+        ],
+      },
+      {
+        title: 'Cómo gestiono mi setter $100k/mes',
+        url: 'https://fathom.video/share/mW1fUraKD3tC7sP4tTasy1f82DYBBfy5',
+        resources: [],
+      },
+      {
+        title: 'Cómo mejorar métricas de ventas haciendo menos contenido',
+        url: 'https://fathom.video/share/-kwc6_k1Hy7m2Pm8WxHoKZsKZzNNyR69',
+        resources: [],
       },
     ],
-    resources: [
-      { title: 'Script de cierre PDF', url: '#' },
-      { title: 'Checklist pre-llamada', url: '#' },
-    ],
+    resources: [],
   },
   {
-    id: 'sistemas',
-    title: 'SISTEMAS',
+    id: 'marketing',
+    title: 'MARKETING',
     lessons: [
       {
-        title: 'Automatizaciones clave',
-        url: '#',
-        description: 'Vas a ver qué procesos podés automatizar hoy mismo para liberar tiempo sin perder calidad de seguimiento ni conversión.',
+        title: 'Ecosistema de contenido',
+        url: 'https://vimeo.com/1161067574',
+        resources: [
+          { title: 'Entregables', url: 'https://miro.com/app/board/uXjVGJOeQtA=/?share_link_id=886926435324' },
+        ],
       },
       {
-        title: 'CRM y seguimiento',
+        title: 'Optimización de perfil',
+        url: 'https://www.loom.com/share/d7e3937496a747ffbf9264f7aa82d014',
+        resources: [
+          { title: 'Entregables', url: 'https://docs.google.com/document/d/1w8QVeY_uwJ52ddfW7XC7TuLAQF5ihoy3GzG4_nlbQzU/copy' },
+        ],
+      },
+      {
+        title: 'El detrás de mis secuencias de historias',
+        url: 'https://www.youtube.com/watch?v=Rcx0O4yojsI&t=1327s',
+        resources: [
+          { title: 'Recurso', url: 'https://docs.google.com/document/d/1qCMtYToU1ksAYGGEy9QuZTgrrMjUYaVN5J4qsVrE_xs/copy' },
+        ],
+      },
+      {
+        title: 'Cómo hacer tus secuencias de historias',
+        url: 'https://vimeo.com/1161136006',
+        resources: [
+          { title: 'Recurso', url: 'https://miro.com/app/board/uXjVGNV4Ejg=/?share_link_id=401015036323' },
+        ],
+      },
+      {
+        title: 'Cómo corregir un calendario de contenido para tu ICP',
+        url: 'https://fathom.video/share/qsWHNxTWVTUpscRbD3Lrv1kXLsFKx4te',
+        resources: [],
+      },
+    ],
+    resources: [],
+  },
+  {
+    id: 'ia-sistemas',
+    title: 'IA Y SISTEMAS',
+    lessons: [
+      {
+        title: 'Cómo usar Claude para mejorar el contenido',
+        url: 'https://www.loom.com/share/8f524d28cb3f4a0bb8412fd8d85c302d',
+        resources: [],
+      },
+      {
+        title: 'Cómo usar Poppy',
         url: '#',
-        description: 'Un lead que no se sigue es un lead perdido. Acá vas a armar el sistema de seguimiento que hace que ninguna oportunidad se enfríe sola.',
+        resources: [
+          { title: 'Comprar Poppy', url: 'https://getpoppy.ai/?coupon=REFERRAL&affiliate=aumenta_tu_valor' },
+          { title: 'Template Poppy', url: 'https://app.getpoppy.ai/boards/gentle-star-lqLuo' },
+          { title: 'Poppy YouTube', url: 'https://www.skool.com/aumenta-tu-valor/classroom/8ccd9b63?md=02fd13a94cdd44cc9b874d38262bc853' },
+          { title: 'Poppy Stories', url: 'https://www.skool.com/aumenta-tu-valor/classroom/8ccd9b63?md=042a62cb67bc486fbc787494fd819796' },
+          { title: 'Poppy Reels', url: 'https://www.skool.com/aumenta-tu-valor/classroom/8ccd9b63?md=12e84d702540474281198e047f9e9a14' },
+        ],
       },
     ],
     resources: [],
@@ -64,8 +276,10 @@ const MODULES = [
 ]
 
 export default function CoursePage({ user, onLogout }) {
-  const [selected, setSelected] = useState({ moduleId: 'marketing', lessonIndex: 0 })
+  const [selected, setSelected] = useState({ moduleId: 'bases', lessonIndex: 0 })
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [playing, setPlaying] = useState(false)
+  const [poster, setPoster] = useState(null)
 
   const activeModule = MODULES.find(m => m.id === selected.moduleId)
   const activeLesson = activeModule?.lessons[selected.lessonIndex]
@@ -73,24 +287,107 @@ export default function CoursePage({ user, onLogout }) {
     .slice(0, MODULES.indexOf(activeModule))
     .reduce((acc, m) => acc + m.lessons.length, 0) + selected.lessonIndex + 1
 
-  const getEmbedUrl = (url) => {
-    if (!url || url === '#') return null
-    // Vimeo
-    const vimeo = url.match(/vimeo\.com\/(\d+)/)
-    if (vimeo) return `https://player.vimeo.com/video/${vimeo[1]}?h=0&autoplay=0`
-    // YouTube
-    const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/)
-    if (yt) return `https://www.youtube.com/embed/${yt[1]}`
-    // Loom
-    const loom = url.match(/loom\.com\/share\/([a-zA-Z0-9]+)/)
-    if (loom) return `https://www.loom.com/embed/${loom[1]}`
-    return url
-  }
+  const lessonUrl = activeLesson?.url
+  const embedUrl = getEmbedUrl(lessonUrl)
+  const hasVideo = lessonUrl && lessonUrl !== '#'
 
-  const embedUrl = getEmbedUrl(activeLesson?.url)
+  useEffect(() => {
+    const blockContextMenu = (e) => e.preventDefault()
+    const blockCopy = (e) => e.preventDefault()
+    const blockKeys = (e) => {
+      if (!(e.ctrlKey || e.metaKey)) return
+      const key = e.key.toLowerCase()
+      if (['c', 's', 'u', 'p', 'a'].includes(key)) e.preventDefault()
+    }
+
+    document.addEventListener('contextmenu', blockContextMenu)
+    document.addEventListener('copy', blockCopy)
+    document.addEventListener('cut', blockCopy)
+    document.addEventListener('keydown', blockKeys)
+
+    return () => {
+      document.removeEventListener('contextmenu', blockContextMenu)
+      document.removeEventListener('copy', blockCopy)
+      document.removeEventListener('cut', blockCopy)
+      document.removeEventListener('keydown', blockKeys)
+    }
+  }, [])
+
+  useEffect(() => {
+    setPlaying(false)
+
+    if (!hasVideo) {
+      setPoster(null)
+      return
+    }
+
+    const cached = posterCache.get(lessonUrl)
+    if (cached) setPoster(cached)
+
+    let cancelled = false
+    resolvePoster(lessonUrl).then(url => {
+      if (cancelled || !url) return
+      setPoster(url)
+      preloadPoster(url)
+    })
+
+    prefetchNearbyPosters(selected.moduleId, selected.lessonIndex)
+
+    return () => { cancelled = true }
+  }, [lessonUrl, hasVideo, selected.moduleId, selected.lessonIndex])
+
+  useEffect(() => {
+    const warmCache = () => {
+      MODULES.flatMap(m => m.lessons).forEach(lesson => {
+        if (lesson.url && lesson.url !== '#') {
+          resolvePoster(lesson.url).then(p => p && preloadPoster(p))
+        }
+      })
+    }
+
+    if ('requestIdleCallback' in window) {
+      const id = requestIdleCallback(warmCache)
+      return () => cancelIdleCallback(id)
+    }
+
+    const timer = setTimeout(warmCache, 600)
+    return () => clearTimeout(timer)
+  }, [])
+
+  const activeResources = activeLesson?.resources?.length
+    ? activeLesson.resources
+    : (activeModule?.resources ?? [])
+
+  const handlePosterError = useCallback((e) => {
+    const src = e.currentTarget.src
+    if (src.includes('maxresdefault')) {
+      e.currentTarget.src = src.replace('maxresdefault', 'hqdefault')
+      return
+    }
+    e.currentTarget.style.display = 'none'
+  }, [])
+
+  const handlePlay = useCallback(() => {
+    if (embedUrl) {
+      setPlaying(true)
+      return
+    }
+    if (hasVideo) {
+      window.open(lessonUrl, '_blank', 'noopener,noreferrer')
+    }
+  }, [embedUrl, hasVideo, lessonUrl])
+
+  const openResource = useCallback((url) => {
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }, [])
 
   return (
-    <div className={styles.shell}>
+    <div
+      className={styles.shell}
+      onContextMenu={(e) => e.preventDefault()}
+      onCopy={(e) => e.preventDefault()}
+      onCut={(e) => e.preventDefault()}
+    >
 
       {/* NAVBAR */}
       <nav className={styles.nav}>
@@ -158,27 +455,6 @@ export default function CoursePage({ user, onLogout }) {
 
           <div className={styles.viewer}>
 
-            {/* VIDEO */}
-            <div className={styles.mediaWrap}>
-              <div className={styles.media}>
-                {embedUrl ? (
-                  <div className={styles.embedWrap}>
-                    <iframe
-                      src={embedUrl}
-                      className={styles.embed}
-                      frameBorder="0"
-                      allowFullScreen
-                      allow="autoplay; fullscreen; picture-in-picture"
-                    />
-                  </div>
-                ) : (
-                  <div className={styles.placeholder}>
-                    <span className={styles.placeholderText}>PRÓXIMAMENTE</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
             {/* INFO */}
             <div className={styles.info}>
               <p className={styles.infoSection}>{activeModule?.title}</p>
@@ -188,6 +464,51 @@ export default function CoursePage({ user, onLogout }) {
               </h1>
             </div>
 
+            {/* VIDEO */}
+            {hasVideo && (
+              <div className={styles.mediaWrap}>
+                <div className={styles.media}>
+                  <div className={styles.embedWrap}>
+                    {playing && embedUrl ? (
+                      <iframe
+                        src={`${embedUrl}${embedUrl.includes('?') ? '&' : '?'}autoplay=1`}
+                        className={styles.embed}
+                        title={activeLesson.title}
+                        frameBorder="0"
+                        allowFullScreen
+                        allow="autoplay; fullscreen; picture-in-picture"
+                        referrerPolicy="strict-origin-when-cross-origin"
+                      />
+                    ) : (
+                      <button
+                        type="button"
+                        className={styles.playerPoster}
+                        onClick={handlePlay}
+                        aria-label={`Reproducir ${activeLesson.title}`}
+                      >
+                        {poster && (
+                          <img
+                            src={poster}
+                            alt=""
+                            className={styles.posterImg}
+                            draggable={false}
+                            onError={handlePosterError}
+                            onDragStart={(e) => e.preventDefault()}
+                          />
+                        )}
+                        <span className={styles.posterOverlay} aria-hidden="true" />
+                        <span className={styles.playBtn}>
+                          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        </span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {activeLesson?.description && (
               <div className={styles.description}>
                 <p className={styles.descText}>{activeLesson.description}</p>
@@ -195,21 +516,20 @@ export default function CoursePage({ user, onLogout }) {
             )}
 
             {/* RECURSOS */}
-            {activeModule?.resources.length > 0 && (
+            {activeResources.length > 0 && (
               <div className={styles.resources}>
                 <p className={styles.resourcesLabel}>RECURSOS</p>
                 <ul className={styles.resourcesList}>
-                  {activeModule.resources.map((r, i) => (
+                  {activeResources.map((r, i) => (
                     <li key={i}>
-                      <a
-                        href={r.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        type="button"
                         className={styles.resourceLink}
+                        onClick={() => openResource(r.url)}
                       >
                         <span className={styles.resourceIcon}>↓</span>
                         {r.title}
-                      </a>
+                      </button>
                     </li>
                   ))}
                 </ul>
