@@ -52,7 +52,7 @@ export default function LoginPage({ onLogin }) {
         <div className={styles.card}>
           <div className={styles.logoWrap}>
             <img
-              src="/atv-logo.png"
+              src={`${import.meta.env.BASE_URL}atv-logo.png`}
               alt="ATV — Aumenta Tu Valor"
               className={styles.logo}
               width={72}
