@@ -31,8 +31,8 @@ export default function App() {
   const handleLogin = (userData) => {
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(userData))
     setUser(userData)
-    window.history.pushState({}, '', `${BASE}/curso`)
-    setPath('/curso')
+    window.history.pushState({}, '', `${BASE}/contenido`)
+    setPath('/contenido')
   }
 
   const handleLogout = () => {
@@ -42,7 +42,7 @@ export default function App() {
     setPath('/')
   }
 
-  if (path === '/curso') {
+  if (path === '/contenido') {
     if (!user) {
       window.history.pushState({}, '', BASE)
       return <LoginPage onLogin={handleLogin} />
