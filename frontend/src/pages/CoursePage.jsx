@@ -391,18 +391,16 @@ export default function CoursePage({ user, onLogout }) {
 
       {/* NAVBAR */}
       <nav className={styles.nav}>
+        <button className={styles.navMenu} onClick={() => setSidebarOpen(true)}>
+          ☰
+        </button>
         <span className={styles.navLogo}>ATV</span>
         <span className={styles.navTitle}>ENTRENAMIENTO EXCLUSIVO</span>
-        <div className={styles.navRight}>
-          <span className={styles.navUser}>
-            {user?.name?.split(' ')[0]}
-            <span className={styles.navCode}>{user?.access_code}</span>
-          </span>
-          <button className={styles.navMenu} onClick={() => setSidebarOpen(true)}>
-            ☰
-          </button>
-          <button className={styles.navLogout} onClick={onLogout}>SALIR</button>
-        </div>
+        <span className={styles.navUser}>
+          {user?.name?.split(' ')[0]}
+          <span className={styles.navCode}>{user?.access_code}</span>
+        </span>
+        <button className={styles.navLogout} onClick={onLogout}>SALIR</button>
       </nav>
 
       <div className={styles.body}>
