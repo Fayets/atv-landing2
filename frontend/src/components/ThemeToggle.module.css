@@ -1,0 +1,31 @@
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.toggle:hover {
+  border-color: var(--red);
+  color: var(--red-accent);
+  background: var(--red-dim);
+}
+
+.toggle svg {
+  width: 18px;
+  height: 18px;
+}
+
+.toggle:focus-visible {
+  outline: 1px solid var(--red-accent);
+  outline-offset: 2px;
+}

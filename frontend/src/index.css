@@ -1,4 +1,42 @@
-:root {
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #0e0e0e;
+  --surface: #1a1a1a;
+  --surface2: #141414;
+  --border: #2e2e2e;
+  --text: #f2f2f0;
+  --muted: #9a968d;
+  --red: #c85858;
+  --red-accent: #d46464;
+  --red-dim: rgba(176, 69, 69, 0.14);
+  --hover-bg: rgba(255, 255, 255, 0.05);
+  --overlay-bg: rgba(0, 0, 0, 0.65);
+  --shadow-sm: 0 4px 20px rgba(0, 0, 0, 0.45);
+  --shadow-sidebar: 4px 0 32px rgba(0, 0, 0, 0.55);
+  --media-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+  --halo-color: rgba(176, 69, 69, 0.12);
+  --placeholder: #5e5c57;
+  --error-bg: rgba(224, 85, 85, 0.1);
+  --error-border: rgba(224, 85, 85, 0.3);
+  --login-red: rgba(176, 69, 69, 0.4);
+  --login-red-focus: rgba(200, 90, 90, 0.75);
+  --login-red-solid: #d46464;
+  --login-red-hover: #e07070;
+  --error: #e07070;
+  --progress: #1d9e75;
+  --radius: 8px;
+  --font: 'Inter', system-ui, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-display: 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-metric: 'Inter', system-ui, sans-serif;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
   --bg: #f7f6f3;
   --surface: #ffffff;
   --surface2: #f0efeb;
@@ -8,14 +46,20 @@
   --red: #a03a3a;
   --red-accent: #b04545;
   --red-dim: rgba(176, 69, 69, 0.08);
-  --progress: #1d9e75;
+  --hover-bg: rgba(0, 0, 0, 0.04);
+  --overlay-bg: rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-sidebar: 4px 0 24px rgba(0, 0, 0, 0.08);
+  --media-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --halo-color: rgba(176, 69, 69, 0.05);
+  --placeholder: #a8a49c;
+  --error-bg: rgba(196, 60, 60, 0.06);
+  --error-border: rgba(196, 60, 60, 0.25);
+  --login-red: rgba(160, 70, 70, 0.35);
+  --login-red-focus: rgba(176, 69, 69, 0.65);
+  --login-red-solid: #a03a3a;
+  --login-red-hover: #b04545;
   --error: #c43c3c;
-  --radius: 8px;
-  --font: 'Inter', system-ui, sans-serif;
-  --font-serif: 'Playfair Display', Georgia, serif;
-  --font-display: 'Inter', system-ui, sans-serif;
-  --font-body: 'Inter', system-ui, sans-serif;
-  --font-metric: 'Inter', system-ui, sans-serif;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -28,6 +72,7 @@ body {
   line-height: 1.6;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
+  transition: background 0.25s ease, color 0.25s ease;
 }
 
 button { cursor: pointer; font-family: var(--font-body); }

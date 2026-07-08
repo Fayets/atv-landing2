@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import ThemeToggle from '../components/ThemeToggle'
 import { loginWithCode } from '../api/leads'
 import styles from './LoginPage.module.css'
 
@@ -48,6 +49,7 @@ export default function LoginPage({ onLogin }) {
 
   return (
     <div className={styles.page}>
+      <ThemeToggle className={styles.themeToggle} />
       <main className={styles.main}>
         <div className={styles.card}>
           <div className={styles.logoWrap}>

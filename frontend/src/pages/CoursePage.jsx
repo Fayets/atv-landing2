@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import ThemeToggle from '../components/ThemeToggle'
 import styles from './CoursePage.module.css'
 
 const posterCache = new Map()
@@ -194,7 +195,7 @@ const MODULES = [
         title: 'Reportes de Ventas a Marketing $100k/mes',
         url: 'https://fathom.video/share/Uv9jt7N-eyxQySYMDPmXxo-9zC8f7W59',
         resources: [
-          { title: 'Entregable', url: 'https://miro.com/app/board/uXjVHLXMvfA=/?share_link_id=236461379933' },
+          { title: 'Entregable', url: 'https://miro.com/app/board/uXjVGJOeQtA=/?share_link_id=886926435324' },
         ],
       },
       {
@@ -257,18 +258,31 @@ const MODULES = [
       {
         title: 'Cómo usar Claude para mejorar el contenido',
         url: 'https://www.loom.com/share/8f524d28cb3f4a0bb8412fd8d85c302d',
+        description: 'En esta clase te muestro cómo usar Claude para construir tu contenido en base a datos reales.\n\nVas a aprender a unir los tres tipos de marketing datos, estructura y psicología para dejar de adivinar qué subir.\n\nLo trabajo en vivo con un caso real cargando llamadas y formularios de onboarding para sacar el avatar y alinear todo el contenido.\n\nTe recomiendo verla con la compu al lado e ir aplicando cada paso mientras avanza.',
         resources: [],
       },
       {
         title: 'Cómo usar Poppy',
-        url: '#',
+        url: 'https://www.loom.com/share/e1d13ffe58d140aab6fbc62407eb0eab',
         resources: [
           { title: 'Comprar Poppy', url: 'https://getpoppy.ai/?coupon=REFERRAL&affiliate=aumenta_tu_valor' },
           { title: 'Template Poppy', url: 'https://app.getpoppy.ai/boards/gentle-star-lqLuo' },
-          { title: 'Poppy YouTube', url: 'https://www.skool.com/aumenta-tu-valor/classroom/8ccd9b63?md=02fd13a94cdd44cc9b874d38262bc853' },
-          { title: 'Poppy Stories', url: 'https://www.skool.com/aumenta-tu-valor/classroom/8ccd9b63?md=042a62cb67bc486fbc787494fd819796' },
-          { title: 'Poppy Reels', url: 'https://www.skool.com/aumenta-tu-valor/classroom/8ccd9b63?md=12e84d702540474281198e047f9e9a14' },
         ],
+      },
+      {
+        title: 'Poppy YouTube Template',
+        url: 'https://www.loom.com/share/9bf50c9d0b1547c19600518a2c0876d7',
+        resources: [],
+      },
+      {
+        title: 'Poppy Stories',
+        url: 'https://www.loom.com/share/5b75e4b5d35e4fcb99052694bf5a1928',
+        resources: [],
+      },
+      {
+        title: 'Poppy Reels',
+        url: 'https://www.loom.com/share/1f23a048e9594230a7fa77dab083ddeb',
+        resources: [],
       },
     ],
     resources: [],
@@ -395,11 +409,11 @@ export default function CoursePage({ user, onLogout }) {
           ☰
         </button>
         <span className={styles.navLogo}>ATV</span>
-        <span className={styles.navTitle}>ENTRENAMIENTO EXCLUSIVO</span>
         <span className={styles.navUser}>
           {user?.name?.split(' ')[0]}
           <span className={styles.navCode}>{user?.access_code}</span>
         </span>
+        <ThemeToggle className={styles.navTheme} />
         <button className={styles.navLogout} onClick={onLogout}>SALIR</button>
       </nav>
 
@@ -509,7 +523,9 @@ export default function CoursePage({ user, onLogout }) {
 
             {activeLesson?.description && (
               <div className={styles.description}>
-                <p className={styles.descText}>{activeLesson.description}</p>
+                {activeLesson.description.split('\n\n').map((paragraph, i) => (
+                  <p key={i} className={styles.descText}>{paragraph}</p>
+                ))}
               </div>
             )}
 
