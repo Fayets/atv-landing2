@@ -4,7 +4,7 @@ import LoginPage from './pages/LoginPage'
 const CoursePage = lazy(() => import('./pages/CoursePage'))
 
 const SESSION_KEY = 'atv_webinar_user'
-const BASE = '/curso'
+const BASE = '/course'
 
 function stripBase(path) {
   const p = path.startsWith(BASE) ? path.slice(BASE.length) : path
