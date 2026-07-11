@@ -114,9 +114,62 @@ function getEmbedUrl(url) {
 
 const MODULES = [
   {
+    id: 'marketing',
+    title: 'MARKETING',
+    lessons: [
+      {
+        title: 'Ecosistema de contenido',
+        url: 'https://vimeo.com/1161067574',
+        resources: [
+          { title: 'Entregables', url: 'https://miro.com/app/board/uXjVGJOeQtA=/?share_link_id=886926435324' },
+        ],
+      },
+      {
+        title: 'Optimización de perfil',
+        url: 'https://www.loom.com/share/d7e3937496a747ffbf9264f7aa82d014',
+        resources: [
+          { title: 'Entregables', url: 'https://docs.google.com/document/d/1w8QVeY_uwJ52ddfW7XC7TuLAQF5ihoy3GzG4_nlbQzU/copy' },
+        ],
+      },
+      {
+        title: 'El detrás de mis secuencias de historias',
+        url: 'https://www.youtube.com/watch?v=Rcx0O4yojsI&t=1327s',
+        resources: [
+          { title: 'Recurso', url: 'https://docs.google.com/document/d/1qCMtYToU1ksAYGGEy9QuZTgrrMjUYaVN5J4qsVrE_xs/copy' },
+        ],
+      },
+      {
+        title: 'Cómo hacer tus secuencias de historias',
+        url: 'https://vimeo.com/1161136006',
+        resources: [
+          { title: 'Recurso', url: 'https://miro.com/app/board/uXjVGNV4Ejg=/?share_link_id=401015036323' },
+        ],
+      },
+      {
+        title: 'Cómo corregir un calendario de contenido para tu ICP',
+        url: 'https://fathom.video/share/qsWHNxTWVTUpscRbD3Lrv1kXLsFKx4te',
+        resources: [],
+      },
+      {
+        title: 'Que contenido subir y como hacerlo (TOFU, MOFU y BOFU)',
+        url: 'https://fathom.video/share/AYywrzjWxQunX3V3TtiPtbzAbx8iZXXM',
+        resources: [],
+      },
+    ],
+    resources: [],
+  },
+  {
     id: 'bases',
     title: 'BASES',
     lessons: [
+      {
+        title: 'Volumen, análisis y apalancamiento',
+        url: 'https://vimeo.com/1160887683',
+        resources: [
+          { title: 'Recurso', url: 'https://docs.google.com/document/d/1AW6NUMzlhnsTtu48KsV9ROWcCRb2CEA4ytwihfocNaQ/copy' },
+          { title: 'Recurso', url: 'https://docs.google.com/document/d/1lzDY0t1nFmgatV0GXwMXCfcSqoRl8Pwq0xMK7yQFgyU/copy' },
+        ],
+      },
       {
         title: 'Cómo funciona un negocio $100k/mes con poca gente y mucho margen',
         url: 'https://www.youtube.com/watch?v=Ebum9B4BSSM&t=1314s',
@@ -212,46 +265,6 @@ const MODULES = [
     resources: [],
   },
   {
-    id: 'marketing',
-    title: 'MARKETING',
-    lessons: [
-      {
-        title: 'Ecosistema de contenido',
-        url: 'https://vimeo.com/1161067574',
-        resources: [
-          { title: 'Entregables', url: 'https://miro.com/app/board/uXjVGJOeQtA=/?share_link_id=886926435324' },
-        ],
-      },
-      {
-        title: 'Optimización de perfil',
-        url: 'https://www.loom.com/share/d7e3937496a747ffbf9264f7aa82d014',
-        resources: [
-          { title: 'Entregables', url: 'https://docs.google.com/document/d/1w8QVeY_uwJ52ddfW7XC7TuLAQF5ihoy3GzG4_nlbQzU/copy' },
-        ],
-      },
-      {
-        title: 'El detrás de mis secuencias de historias',
-        url: 'https://www.youtube.com/watch?v=Rcx0O4yojsI&t=1327s',
-        resources: [
-          { title: 'Recurso', url: 'https://docs.google.com/document/d/1qCMtYToU1ksAYGGEy9QuZTgrrMjUYaVN5J4qsVrE_xs/copy' },
-        ],
-      },
-      {
-        title: 'Cómo hacer tus secuencias de historias',
-        url: 'https://vimeo.com/1161136006',
-        resources: [
-          { title: 'Recurso', url: 'https://miro.com/app/board/uXjVGNV4Ejg=/?share_link_id=401015036323' },
-        ],
-      },
-      {
-        title: 'Cómo corregir un calendario de contenido para tu ICP',
-        url: 'https://fathom.video/share/qsWHNxTWVTUpscRbD3Lrv1kXLsFKx4te',
-        resources: [],
-      },
-    ],
-    resources: [],
-  },
-  {
     id: 'ia-sistemas',
     title: 'IA Y SISTEMAS',
     lessons: [
@@ -290,7 +303,7 @@ const MODULES = [
 ]
 
 export default function CoursePage({ user, onLogout }) {
-  const [selected, setSelected] = useState({ moduleId: 'bases', lessonIndex: 0 })
+  const [selected, setSelected] = useState({ moduleId: 'marketing', lessonIndex: 0 })
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [playing, setPlaying] = useState(false)
   const [poster, setPoster] = useState(null)
