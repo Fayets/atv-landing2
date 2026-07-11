@@ -114,6 +114,33 @@ function getEmbedUrl(url) {
 
 const MODULES = [
   {
+    id: 'bases',
+    title: 'PRINCIPIOS BASICOS',
+    lessons: [
+      {
+        title: 'Volumen, análisis y apalancamiento',
+        url: 'https://vimeo.com/1160887683',
+        resources: [
+          { title: 'Recurso', url: 'https://docs.google.com/document/d/1AW6NUMzlhnsTtu48KsV9ROWcCRb2CEA4ytwihfocNaQ/copy' },
+          { title: 'Recurso', url: 'https://docs.google.com/document/d/1lzDY0t1nFmgatV0GXwMXCfcSqoRl8Pwq0xMK7yQFgyU/copy' },
+        ],
+      },
+      {
+        title: 'Dónde enfocarnos para escalar a $100k/mes',
+        url: 'https://vimeo.com/1161065905',
+        resources: [
+          { title: 'SOP', url: 'https://docs.google.com/document/d/1dB_FFZUsJtv3b18RyiyHlUCKHye0Zf6AI7zJ6jSrFsA/copy' },
+        ],
+      },
+      {
+        title: 'Cómo gestionar tu energía para hacer $100k/mes',
+        url: 'https://www.loom.com/share/668e0231c3764b6e8cced95ce39322a6',
+        resources: [],
+      },
+    ],
+    resources: [],
+  },
+  {
     id: 'marketing',
     title: 'MARKETING',
     lessons: [
@@ -155,21 +182,6 @@ const MODULES = [
         url: 'https://fathom.video/share/AYywrzjWxQunX3V3TtiPtbzAbx8iZXXM',
         resources: [],
       },
-    ],
-    resources: [],
-  },
-  {
-    id: 'bases',
-    title: 'BASES',
-    lessons: [
-      {
-        title: 'Volumen, análisis y apalancamiento',
-        url: 'https://vimeo.com/1160887683',
-        resources: [
-          { title: 'Recurso', url: 'https://docs.google.com/document/d/1AW6NUMzlhnsTtu48KsV9ROWcCRb2CEA4ytwihfocNaQ/copy' },
-          { title: 'Recurso', url: 'https://docs.google.com/document/d/1lzDY0t1nFmgatV0GXwMXCfcSqoRl8Pwq0xMK7yQFgyU/copy' },
-        ],
-      },
       {
         title: 'Cómo funciona un negocio $100k/mes con poca gente y mucho margen',
         url: 'https://www.youtube.com/watch?v=Ebum9B4BSSM&t=1314s',
@@ -183,54 +195,6 @@ const MODULES = [
         resources: [
           { title: 'Recurso', url: 'https://docs.google.com/document/d/1Eq6jTcPrsP09gS3ByZE329MniH9Ai-PQafDclCFs1so/copy' },
         ],
-      },
-      {
-        title: 'Servicio, upsells y carga operativa $100k/mes',
-        url: 'https://www.youtube.com/watch?v=R1Cr7Xer-KE&t=1158s',
-        resources: [
-          { title: 'Recurso', url: 'https://docs.google.com/document/d/1iYjbjzKIf-xC974pFqchy4JVRvb-EFArp8_CC8b-nJk/copy' },
-        ],
-      },
-      {
-        title: 'Dónde enfocarnos para escalar a $100k/mes',
-        url: 'https://vimeo.com/1161065905',
-        resources: [
-          { title: 'SOP', url: 'https://docs.google.com/document/d/1dB_FFZUsJtv3b18RyiyHlUCKHye0Zf6AI7zJ6jSrFsA/copy' },
-        ],
-      },
-      {
-        title: 'Cómo gestionar tu energía para hacer $100k/mes',
-        url: 'https://www.loom.com/share/668e0231c3764b6e8cced95ce39322a6',
-        resources: [],
-      },
-    ],
-    resources: [],
-  },
-  {
-    id: 'equipo',
-    title: 'EQUIPO',
-    lessons: [
-      {
-        title: 'Mindset General del Equipo $100k/mes',
-        url: 'https://www.youtube.com/watch?v=yhj5Qe_WrBI&t=8s',
-        resources: [],
-      },
-      {
-        title: 'Cómo hacer que tu equipo escale el negocio por vos',
-        url: 'https://www.youtube.com/watch?v=zEv9ZD3MLrA&t=1723s',
-        resources: [
-          { title: 'Recurso', url: 'https://docs.google.com/document/d/1Reqr0JCIcl4nLdJeNZTfBlzQi00AwWSCvRj3rxt8Xg8/copy' },
-        ],
-      },
-      {
-        title: 'Cómo pagarle correctamente a tu equipo',
-        url: 'https://www.youtube.com/watch?v=7eoNiBA861k&t=389s',
-        resources: [],
-      },
-      {
-        title: 'Cómo gestionar equipos como Growth',
-        url: 'https://www.youtube.com/watch?v=y1bo6mBhehs&t=1171s',
-        resources: [],
       },
     ],
     resources: [],
@@ -259,6 +223,42 @@ const MODULES = [
       {
         title: 'Cómo mejorar métricas de ventas haciendo menos contenido',
         url: 'https://fathom.video/share/-kwc6_k1Hy7m2Pm8WxHoKZsKZzNNyR69',
+        resources: [],
+      },
+      {
+        title: 'Servicio, upsells y carga operativa $100k/mes',
+        url: 'https://www.youtube.com/watch?v=R1Cr7Xer-KE&t=1158s',
+        resources: [
+          { title: 'Recurso', url: 'https://docs.google.com/document/d/1iYjbjzKIf-xC974pFqchy4JVRvb-EFArp8_CC8b-nJk/copy' },
+        ],
+      },
+    ],
+    resources: [],
+  },
+  {
+    id: 'equipo',
+    title: 'EQUIPO',
+    lessons: [
+      {
+        title: 'Mindset General del Equipo $100k/mes',
+        url: 'https://www.youtube.com/watch?v=yhj5Qe_WrBI&t=8s',
+        resources: [],
+      },
+      {
+        title: 'Cómo hacer que tu equipo escale el negocio por vos',
+        url: 'https://www.youtube.com/watch?v=zEv9ZD3MLrA&t=1723s',
+        resources: [
+          { title: 'Recurso', url: 'https://docs.google.com/document/d/1Reqr0JCIcl4nLdJeNZTfBlzQi00AwWSCvRj3rxt8Xg8/copy' },
+        ],
+      },
+      {
+        title: 'Cómo pagarle correctamente a tu equipo',
+        url: 'https://www.youtube.com/watch?v=7eoNiBA861k&t=389s',
+        resources: [],
+      },
+      {
+        title: 'Cómo gestionar equipos como Growth',
+        url: 'https://www.youtube.com/watch?v=y1bo6mBhehs&t=1171s',
         resources: [],
       },
     ],
@@ -303,7 +303,7 @@ const MODULES = [
 ]
 
 export default function CoursePage({ user, onLogout }) {
-  const [selected, setSelected] = useState({ moduleId: 'marketing', lessonIndex: 0 })
+  const [selected, setSelected] = useState({ moduleId: 'bases', lessonIndex: 0 })
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [playing, setPlaying] = useState(false)
   const [poster, setPoster] = useState(null)
