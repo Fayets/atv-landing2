@@ -113,6 +113,8 @@ function getEmbedUrl(url) {
 }
 
 const WA_NUMBER = '5491162626702'
+const CALENDLY_URL = 'https://calendly.com/aumentatuvalor/llamada-de-conocimeinto-atv'
+const INSTAGRAM_URL = 'https://www.instagram.com/juanxcarrizo'
 
 const MODULES = [
   {
@@ -536,6 +538,27 @@ export default function CoursePage({ user, onLogout }) {
                 ))}
               </div>
             )}
+
+            <div className={styles.closing}>
+              <p className={styles.closingText}>
+                Si querés solucionar este problema, agendá una llamada y auditamos tu negocio:{' '}
+                <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer">{CALENDLY_URL}</a>
+              </p>
+              <p className={styles.closingText}>
+                Si la clase te gustó, sacá una foto y compartila por Instagram etiquetándome :)
+              </p>
+              <p className={styles.closingText}>
+                Mi Instagram:{' '}
+                <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">@juanxcarrizo</a>
+              </p>
+              <p className={styles.closingText}>
+                Es la única forma que tengo de sentir que esta clase sirvió y me ayuda mucho saber que te ayudó.
+              </p>
+              <p className={styles.closingText}>
+                Gracias, gracias, gracias.
+              </p>
+              <p className={styles.closingSign}>Juan</p>
+            </div>
 
             {/* RECURSOS */}
             {activeResources.length > 0 && (

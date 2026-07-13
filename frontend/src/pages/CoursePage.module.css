@@ -507,6 +507,48 @@
   opacity: 0.82;
 }
 
+/* CIERRE */
+.closing {
+  width: 100%;
+  border-top: 1px solid var(--border);
+  padding-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.closingText {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.85;
+  letter-spacing: 0.01em;
+  color: var(--text);
+  opacity: 0.82;
+}
+
+.closingText a {
+  color: var(--red-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  word-break: break-all;
+}
+
+.closingText a:hover {
+  opacity: 0.85;
+}
+
+.closingSign {
+  margin: 4px 0 0;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 400;
+  color: var(--text);
+  opacity: 0.82;
+}
+
 /* BOTÓN WHATSAPP FIJO */
 .waBtn {
   position: fixed;
