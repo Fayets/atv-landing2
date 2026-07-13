@@ -112,6 +112,8 @@ function getEmbedUrl(url) {
   return null
 }
 
+const WA_NUMBER = '5491162626702'
+
 const MODULES = [
   {
     id: 'bases',
@@ -121,15 +123,15 @@ const MODULES = [
         title: 'Volumen, análisis y apalancamiento',
         url: 'https://vimeo.com/1160887683',
         resources: [
-          { title: 'Recurso', url: 'https://docs.google.com/document/d/1AW6NUMzlhnsTtu48KsV9ROWcCRb2CEA4ytwihfocNaQ/copy' },
-          { title: 'Recurso', url: 'https://docs.google.com/document/d/1lzDY0t1nFmgatV0GXwMXCfcSqoRl8Pwq0xMK7yQFgyU/copy' },
+          { title: 'ACCIÓN > PENSAR', url: 'https://docs.google.com/document/d/1AW6NUMzlhnsTtu48KsV9ROWcCRb2CEA4ytwihfocNaQ/copy' },
+          { title: 'SOP: DIAGNÓSTICO Y ACCIÓN – VOLUMEN, ANÁLISIS, APALANCAMIENTO', url: 'https://docs.google.com/document/d/1lzDY0t1nFmgatV0GXwMXCfcSqoRl8Pwq0xMK7yQFgyU/copy' },
         ],
       },
       {
         title: 'Dónde enfocarnos para escalar a $100k/mes',
         url: 'https://vimeo.com/1161065905',
         resources: [
-          { title: 'SOP', url: 'https://docs.google.com/document/d/1dB_FFZUsJtv3b18RyiyHlUCKHye0Zf6AI7zJ6jSrFsA/copy' },
+          { title: 'SOP: DIAGNÓSTICO DE CAPAS DE NEGOCIO', url: 'https://docs.google.com/document/d/1dB_FFZUsJtv3b18RyiyHlUCKHye0Zf6AI7zJ6jSrFsA/copy' },
         ],
       },
       {
@@ -148,28 +150,28 @@ const MODULES = [
         title: 'Ecosistema de contenido',
         url: 'https://vimeo.com/1161067574',
         resources: [
-          { title: 'Entregables', url: 'https://miro.com/app/board/uXjVGJOeQtA=/?share_link_id=886926435324' },
+          { title: 'ECOSYSTEM CONTENT', url: 'https://miro.com/app/board/uXjVGJOeQtA=/?share_link_id=886926435324' },
         ],
       },
       {
         title: 'Optimización de perfil',
         url: 'https://www.loom.com/share/d7e3937496a747ffbf9264f7aa82d014',
         resources: [
-          { title: 'Entregables', url: 'https://docs.google.com/document/d/1w8QVeY_uwJ52ddfW7XC7TuLAQF5ihoy3GzG4_nlbQzU/copy' },
+          { title: 'SOP ENTREGABLE: OPTIMIZACIÓN DE PERFIL', url: 'https://docs.google.com/document/d/1w8QVeY_uwJ52ddfW7XC7TuLAQF5ihoy3GzG4_nlbQzU/copy' },
         ],
       },
       {
         title: 'El detrás de mis secuencias de historias',
         url: 'https://www.youtube.com/watch?v=Rcx0O4yojsI&t=1327s',
         resources: [
-          { title: 'Recurso', url: 'https://docs.google.com/document/d/1qCMtYToU1ksAYGGEy9QuZTgrrMjUYaVN5J4qsVrE_xs/copy' },
+          { title: 'SEQUENCE OF STORIES', url: 'https://docs.google.com/document/d/1qCMtYToU1ksAYGGEy9QuZTgrrMjUYaVN5J4qsVrE_xs/copy' },
         ],
       },
       {
         title: 'Cómo hacer tus secuencias de historias',
         url: 'https://vimeo.com/1161136006',
         resources: [
-          { title: 'Recurso', url: 'https://miro.com/app/board/uXjVGNV4Ejg=/?share_link_id=401015036323' },
+          { title: 'SECUENCIAS DE HISTORIAS', url: 'https://miro.com/app/board/uXjVGNV4Ejg=/?share_link_id=401015036323' },
         ],
       },
       {
@@ -186,14 +188,14 @@ const MODULES = [
         title: 'Cómo funciona un negocio $100k/mes con poca gente y mucho margen',
         url: 'https://www.youtube.com/watch?v=Ebum9B4BSSM&t=1314s',
         resources: [
-          { title: 'Recurso', url: 'https://docs.google.com/document/d/1xGVKJDIo_AbpKTi4Fsyt1rmx7Znhi768TF6HycOETtA/copy' },
+          { title: 'EVERGREEN FUNNEL1', url: 'https://docs.google.com/document/d/1xGVKJDIo_AbpKTi4Fsyt1rmx7Znhi768TF6HycOETtA/copy' },
         ],
       },
       {
         title: 'Marketing y contenido $100k/mes',
         url: 'https://www.youtube.com/watch?v=-AnBdcU66OM&t=2106s',
         resources: [
-          { title: 'Recurso', url: 'https://docs.google.com/document/d/1Eq6jTcPrsP09gS3ByZE329MniH9Ai-PQafDclCFs1so/copy' },
+          { title: 'MARKETING SYSTEM', url: 'https://docs.google.com/document/d/1Eq6jTcPrsP09gS3ByZE329MniH9Ai-PQafDclCFs1so/copy' },
         ],
       },
     ],
@@ -212,7 +214,7 @@ const MODULES = [
         title: 'Reportes de Ventas a Marketing $100k/mes',
         url: 'https://fathom.video/share/Uv9jt7N-eyxQySYMDPmXxo-9zC8f7W59',
         resources: [
-          { title: 'Entregable', url: 'https://miro.com/app/board/uXjVGJOeQtA=/?share_link_id=886926435324' },
+          { title: 'REPORTES VENTAS A MKT', url: 'https://miro.com/app/board/uXjVGJOeQtA=/?share_link_id=886926435324' },
         ],
       },
       {
@@ -229,7 +231,7 @@ const MODULES = [
         title: 'Servicio, upsells y carga operativa $100k/mes',
         url: 'https://www.youtube.com/watch?v=R1Cr7Xer-KE&t=1158s',
         resources: [
-          { title: 'Recurso', url: 'https://docs.google.com/document/d/1iYjbjzKIf-xC974pFqchy4JVRvb-EFArp8_CC8b-nJk/copy' },
+          { title: 'PRODUCT-SYSTEMS-TEAM', url: 'https://docs.google.com/document/d/1iYjbjzKIf-xC974pFqchy4JVRvb-EFArp8_CC8b-nJk/copy' },
         ],
       },
     ],
@@ -248,7 +250,7 @@ const MODULES = [
         title: 'Cómo hacer que tu equipo escale el negocio por vos',
         url: 'https://www.youtube.com/watch?v=zEv9ZD3MLrA&t=1723s',
         resources: [
-          { title: 'Recurso', url: 'https://docs.google.com/document/d/1Reqr0JCIcl4nLdJeNZTfBlzQi00AwWSCvRj3rxt8Xg8/copy' },
+          { title: '$100K TEAM', url: 'https://docs.google.com/document/d/1Reqr0JCIcl4nLdJeNZTfBlzQi00AwWSCvRj3rxt8Xg8/copy' },
         ],
       },
       {
@@ -277,10 +279,7 @@ const MODULES = [
       {
         title: 'Cómo usar Poppy',
         url: 'https://www.loom.com/share/e1d13ffe58d140aab6fbc62407eb0eab',
-        resources: [
-          { title: 'Comprar Poppy', url: 'https://getpoppy.ai/?coupon=REFERRAL&affiliate=aumenta_tu_valor' },
-          { title: 'Template Poppy', url: 'https://app.getpoppy.ai/boards/gentle-star-lqLuo' },
-        ],
+        resources: [],
       },
       {
         title: 'Poppy YouTube Template',
@@ -403,10 +402,6 @@ export default function CoursePage({ user, onLogout }) {
       window.open(lessonUrl, '_blank', 'noopener,noreferrer')
     }
   }, [embedUrl, hasVideo, lessonUrl])
-
-  const openResource = useCallback((url) => {
-    window.open(url, '_blank', 'noopener,noreferrer')
-  }, [])
 
   return (
     <div
@@ -549,14 +544,17 @@ export default function CoursePage({ user, onLogout }) {
                 <ul className={styles.resourcesList}>
                   {activeResources.map((r, i) => (
                     <li key={i}>
-                      <button
-                        type="button"
+                      <a
+                        href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(
+                          `Hola Juan, necesito el recurso "${r.title}" del video "${activeLesson.title}"`
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className={styles.resourceLink}
-                        onClick={() => openResource(r.url)}
                       >
                         <span className={styles.resourceIcon}>↓</span>
                         {r.title}
-                      </button>
+                      </a>
                     </li>
                   ))}
                 </ul>
@@ -568,7 +566,7 @@ export default function CoursePage({ user, onLogout }) {
       </div>
 
       <a
-        href={`https://wa.me/5491162626702?text=${encodeURIComponent(
+        href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(
           `Hola Juan, estuve viendo el módulo de ${activeModule?.title} — "${activeLesson?.title}" y me surgió una duda.`
         )}`}
         target="_blank"
