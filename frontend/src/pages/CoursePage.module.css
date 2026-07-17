@@ -206,6 +206,58 @@
   min-width: 0;
 }
 
+/* CTA: reflector solo en el título */
+.sidebarLessonCta {
+  border-left-color: transparent;
+  background: transparent;
+}
+
+.sidebarLessonCta .sidebarNum {
+  color: var(--muted);
+}
+
+.sidebarLessonCta .sidebarLessonTitle {
+  position: relative;
+  display: inline;
+  font-weight: 600;
+  color: transparent;
+  background-image: linear-gradient(
+    105deg,
+    var(--text) 0%,
+    var(--text) 38%,
+    color-mix(in srgb, #fff 95%, var(--red-accent)) 50%,
+    var(--text) 62%,
+    var(--text) 100%
+  );
+  background-size: 220% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: ctaTitleShine 3.6s ease-in-out infinite;
+}
+
+.sidebarLessonCta:hover .sidebarLessonTitle {
+  animation-duration: 2.2s;
+}
+
+@keyframes ctaTitleShine {
+  0%, 55% { background-position: 100% 0; }
+  75%, 100% { background-position: -100% 0; }
+}
+
+.infoPrivate {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--red-accent) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--red-accent) 50%, transparent);
+  color: var(--red-accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
 /* MAIN */
 .main {
   position: relative;
@@ -328,6 +380,40 @@
   margin-left: 3px;
 }
 
+.ctaPlay {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.ctaPlay .playBtn svg {
+  margin-left: 0;
+  width: 26px;
+  height: 26px;
+}
+
+.ctaClaim {
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #fff;
+  font-family: var(--font);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  backdrop-filter: blur(4px);
+}
+
+.playerPoster:hover .ctaClaim {
+  background: rgba(176, 69, 69, 0.55);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
 /* INFO */
 .info {
   display: flex;
@@ -365,6 +451,98 @@
   font-weight: 500;
   color: var(--red-accent);
   flex-shrink: 0;
+}
+
+.infoCta .infoSection {
+  color: var(--red-accent);
+}
+
+.infoCta .infoTitle {
+  color: var(--text);
+}
+
+.mediaCta {
+  border-color: color-mix(in srgb, var(--red-accent) 55%, transparent);
+  box-shadow: 0 0 40px color-mix(in srgb, var(--red-accent) 18%, transparent);
+}
+
+.playerPosterCta {
+  background:
+    radial-gradient(ellipse 70% 80% at 50% 40%, color-mix(in srgb, var(--red-accent) 35%, transparent), transparent 65%),
+    linear-gradient(160deg, #1c0c0c 0%, #0a0a0a 55%, #120808 100%);
+}
+
+.posterOverlayCta {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0.35) 45%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+}
+
+.playerPosterCta:hover .posterOverlayCta {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.45) 0%,
+    rgba(0, 0, 0, 0.28) 45%,
+    rgba(0, 0, 0, 0.65) 100%
+  );
+}
+
+.playerPosterCta .posterImg {
+  object-fit: cover;
+  filter: saturate(1.05) contrast(1.05);
+}
+
+.ctaPosterContent {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 28px 32px;
+  text-align: center;
+  max-width: 520px;
+}
+
+.ctaPosterEyebrow {
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--red-accent);
+}
+
+.ctaPosterTitle {
+  font-family: var(--font-serif);
+  font-size: clamp(1.4rem, 3.2vw, 2rem);
+  font-weight: 500;
+  line-height: 1.25;
+  color: #fff;
+}
+
+.ctaPosterAction {
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 22px;
+  border-radius: 999px;
+  background: #25d366;
+  color: #fff;
+  font-family: var(--font);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.playerPosterCta:hover .ctaPosterAction {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px rgba(37, 211, 102, 0.45);
 }
 
 /* RECURSOS */

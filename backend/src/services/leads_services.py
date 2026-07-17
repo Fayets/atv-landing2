@@ -10,8 +10,11 @@ class LeadsServices:
             lead = Lead.get(access_code=data.access_code.strip().upper())
             if not lead:
                 return None
+            is_first_login = lead.last_access is None
             lead.last_access = datetime.utcnow()
-            return self._to_dict(lead)
+            result = self._to_dict(lead)
+            result["is_first_login"] = is_first_login
+            return result
 
     def _to_dict(self, lead) -> dict:
         return {

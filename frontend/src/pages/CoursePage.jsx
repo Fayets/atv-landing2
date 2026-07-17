@@ -141,6 +141,12 @@ const MODULES = [
         url: 'https://www.loom.com/share/668e0231c3764b6e8cced95ce39322a6',
         resources: [],
       },
+      {
+        title: 'Métricas y sistemas para tu negocio $100k/mes',
+        cta: true,
+        poster: `${import.meta.env.BASE_URL}cta/foto1.png`,
+        resources: [],
+      },
     ],
     resources: [],
   },
@@ -200,6 +206,12 @@ const MODULES = [
           { title: 'MARKETING SYSTEM', url: 'https://docs.google.com/document/d/1Eq6jTcPrsP09gS3ByZE329MniH9Ai-PQafDclCFs1so/copy' },
         ],
       },
+      {
+        title: 'Cómo generar leads infinitos',
+        cta: true,
+        poster: `${import.meta.env.BASE_URL}cta/foto2.png`,
+        resources: [],
+      },
     ],
     resources: [],
   },
@@ -236,6 +248,12 @@ const MODULES = [
           { title: 'PRODUCT-SYSTEMS-TEAM', url: 'https://docs.google.com/document/d/1iYjbjzKIf-xC974pFqchy4JVRvb-EFArp8_CC8b-nJk/copy' },
         ],
       },
+      {
+        title: 'Cómo armar un proceso de ventas $100k/mes',
+        cta: true,
+        poster: `${import.meta.env.BASE_URL}cta/foto3.png`,
+        resources: [],
+      },
     ],
     resources: [],
   },
@@ -263,6 +281,12 @@ const MODULES = [
       {
         title: 'Cómo gestionar equipos como Growth',
         url: 'https://www.youtube.com/watch?v=y1bo6mBhehs&t=1171s',
+        resources: [],
+      },
+      {
+        title: 'Cómo atraer leads de calidad',
+        cta: true,
+        poster: `${import.meta.env.BASE_URL}cta/foto4.png`,
         resources: [],
       },
     ],
@@ -311,13 +335,22 @@ export default function CoursePage({ user, onLogout }) {
 
   const activeModule = MODULES.find(m => m.id === selected.moduleId)
   const activeLesson = activeModule?.lessons[selected.lessonIndex]
+  const isCta = Boolean(activeLesson?.cta)
+
   const lessonNumber = MODULES
     .slice(0, MODULES.indexOf(activeModule))
     .reduce((acc, m) => acc + m.lessons.length, 0) + selected.lessonIndex + 1
 
   const lessonUrl = activeLesson?.url
   const embedUrl = getEmbedUrl(lessonUrl)
-  const hasVideo = lessonUrl && lessonUrl !== '#'
+  const hasVideo = !isCta && lessonUrl && lessonUrl !== '#'
+
+  const openWhatsAppCta = useCallback((title) => {
+    const href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(
+      `Hola Juan, tengo este problema: "${title}" y quiero solucionarlo.`
+    )}`
+    window.open(href, '_blank', 'noopener,noreferrer')
+  }, [])
 
   useEffect(() => {
     const blockContextMenu = (e) => e.preventDefault()
@@ -396,6 +429,10 @@ export default function CoursePage({ user, onLogout }) {
   }, [])
 
   const handlePlay = useCallback(() => {
+    if (isCta) {
+      openWhatsAppCta(activeLesson.title)
+      return
+    }
     if (embedUrl) {
       setPlaying(true)
       return
@@ -403,7 +440,7 @@ export default function CoursePage({ user, onLogout }) {
     if (hasVideo) {
       window.open(lessonUrl, '_blank', 'noopener,noreferrer')
     }
-  }, [embedUrl, hasVideo, lessonUrl])
+  }, [isCta, activeLesson?.title, openWhatsAppCta, embedUrl, hasVideo, lessonUrl])
 
   return (
     <div
@@ -447,13 +484,18 @@ export default function CoursePage({ user, onLogout }) {
                 <ul className={styles.sidebarList}>
                   {mod.lessons.map((lesson, i) => {
                     const isActive = selected.moduleId === mod.id && selected.lessonIndex === i
+                    const isLessonCta = Boolean(lesson.cta)
                     const globalNum = MODULES
                       .slice(0, MODULES.indexOf(mod))
                       .reduce((acc, m) => acc + m.lessons.length, 0) + i + 1
                     return (
                       <li key={i}>
                         <button
-                          className={`${styles.sidebarLesson} ${isActive ? styles.sidebarLessonActive : ''}`}
+                          className={[
+                            styles.sidebarLesson,
+                            isLessonCta ? styles.sidebarLessonCta : '',
+                            isActive && !isLessonCta ? styles.sidebarLessonActive : '',
+                          ].filter(Boolean).join(' ')}
                           onClick={() => {
                             setSelected({ moduleId: mod.id, lessonIndex: i })
                             setSidebarOpen(false)
@@ -479,19 +521,25 @@ export default function CoursePage({ user, onLogout }) {
 
             {/* INFO */}
             <div className={styles.info}>
-              <p className={styles.infoSection}>{activeModule?.title}</p>
+              <p className={styles.infoSection}>
+                {isCta ? (
+                  <span className={styles.infoPrivate}>Clase privada</span>
+                ) : (
+                  activeModule?.title
+                )}
+              </p>
               <h1 className={styles.infoTitle}>
                 <span className={styles.infoNum}>{String(lessonNumber).padStart(2, '0')}.</span>
                 {activeLesson?.title}
               </h1>
             </div>
 
-            {/* VIDEO */}
-            {hasVideo && (
+            {/* VIDEO / CTA */}
+            {(hasVideo || isCta) && (
               <div className={styles.mediaWrap}>
                 <div className={styles.media}>
                   <div className={styles.embedWrap}>
-                    {playing && embedUrl ? (
+                    {playing && embedUrl && !isCta ? (
                       <iframe
                         src={`${embedUrl}${embedUrl.includes('?') ? '&' : '?'}autoplay=1`}
                         className={styles.embed}
@@ -506,11 +554,11 @@ export default function CoursePage({ user, onLogout }) {
                         type="button"
                         className={styles.playerPoster}
                         onClick={handlePlay}
-                        aria-label={`Reproducir ${activeLesson.title}`}
+                        aria-label={isCta ? `Reclama la clase: ${activeLesson.title}` : `Reproducir ${activeLesson.title}`}
                       >
-                        {poster && (
+                        {(isCta ? activeLesson.poster : poster) && (
                           <img
-                            src={poster}
+                            src={isCta ? activeLesson.poster : poster}
                             alt=""
                             className={styles.posterImg}
                             draggable={false}
@@ -519,11 +567,22 @@ export default function CoursePage({ user, onLogout }) {
                           />
                         )}
                         <span className={styles.posterOverlay} aria-hidden="true" />
-                        <span className={styles.playBtn}>
-                          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                            <path d="M8 5v14l11-7z" />
-                          </svg>
-                        </span>
+                        {isCta ? (
+                          <span className={styles.ctaPlay}>
+                            <span className={styles.playBtn}>
+                              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path d="M17 8V7a5 5 0 0 0-10 0v1H5v14h14V8h-2zm-8-1a3 3 0 0 1 6 0v1H9V7zm3 6a2 2 0 0 1 1 3.73V19h-2v-2.27A2 2 0 0 1 12 13z" />
+                              </svg>
+                            </span>
+                            <span className={styles.ctaClaim}>Reclama la clase</span>
+                          </span>
+                        ) : (
+                          <span className={styles.playBtn}>
+                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                              <path d="M8 5v14l11-7z" />
+                            </svg>
+                          </span>
+                        )}
                       </button>
                     )}
                   </div>
@@ -531,7 +590,7 @@ export default function CoursePage({ user, onLogout }) {
               </div>
             )}
 
-            {activeLesson?.description && (
+            {!isCta && activeLesson?.description && (
               <div className={styles.description}>
                 {activeLesson.description.split('\n\n').map((paragraph, i) => (
                   <p key={i} className={styles.descText}>{paragraph}</p>
@@ -561,7 +620,7 @@ export default function CoursePage({ user, onLogout }) {
             </div>
 
             {/* RECURSOS */}
-            {activeResources.length > 0 && (
+            {!isCta && activeResources.length > 0 && (
               <div className={styles.resources}>
                 <p className={styles.resourcesLabel}>RECURSOS</p>
                 <ul className={styles.resourcesList}>
