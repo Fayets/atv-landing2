@@ -6,9 +6,8 @@
   flex-direction: column;
   overflow: hidden;
   background:
-    radial-gradient(ellipse 80% 55% at 50% 42%, rgba(255, 255, 255, 0.08), transparent 62%),
-    radial-gradient(ellipse 50% 40% at 20% 80%, rgba(255, 255, 255, 0.04), transparent 55%),
-    radial-gradient(ellipse 45% 35% at 85% 15%, rgba(255, 255, 255, 0.05), transparent 50%),
+    radial-gradient(ellipse 80% 55% at 50% 42%, rgba(255, 255, 255, 0.06), transparent 62%),
+    radial-gradient(ellipse 50% 40% at 20% 80%, rgba(255, 255, 255, 0.03), transparent 55%),
     #070707;
   color: var(--text);
 }
@@ -39,45 +38,18 @@
   padding: 36px 28px;
 }
 
+/* Glow estático con gradientes — sin filter:blur ni animaciones (mucho más fluido) */
 .aura {
   pointer-events: none;
   position: absolute;
-  inset: -14%;
+  inset: -8% -4%;
   z-index: 0;
-}
-
-.auraCore {
-  position: absolute;
-  inset: 14% 6%;
   border-radius: 40px;
   background:
-    radial-gradient(ellipse at center, rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0.12) 40%, transparent 70%);
-  filter: blur(42px);
-  animation: auraPulse 4.5s ease-in-out infinite;
-}
-
-.auraSmoke {
-  position: absolute;
-  inset: 8% 0;
-  border-radius: 50%;
-  background:
-    radial-gradient(ellipse 70% 55% at 50% 50%, rgba(255, 255, 255, 0.28), transparent 68%),
-    radial-gradient(ellipse 45% 40% at 30% 60%, rgba(255, 255, 255, 0.12), transparent 60%),
-    radial-gradient(ellipse 40% 35% at 72% 40%, rgba(255, 255, 255, 0.14), transparent 55%);
-  filter: blur(48px);
-  animation: smokeDrift 8s ease-in-out infinite;
-  opacity: 0.9;
-}
-
-.auraSmokeSoft {
-  position: absolute;
-  inset: -4% -8%;
-  border-radius: 50%;
-  background:
-    radial-gradient(ellipse 80% 60% at 50% 55%, rgba(255, 255, 255, 0.14), transparent 72%);
-  filter: blur(70px);
-  animation: smokeDrift 11s ease-in-out infinite reverse;
-  opacity: 0.75;
+    radial-gradient(ellipse 55% 45% at 50% 50%, rgba(255, 255, 255, 0.14) 0%, transparent 68%),
+    radial-gradient(ellipse 35% 30% at 28% 58%, rgba(255, 255, 255, 0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 30% 28% at 72% 42%, rgba(255, 255, 255, 0.07) 0%, transparent 70%);
+  opacity: 0.85;
 }
 
 .videoWrap {
@@ -90,11 +62,11 @@
   background: #000;
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow:
-    0 0 60px rgba(255, 255, 255, 0.18),
-    0 0 140px rgba(255, 255, 255, 0.1),
-    0 0 220px rgba(255, 255, 255, 0.06),
-    0 30px 80px rgba(0, 0, 0, 0.65);
-  animation: frameGlow 4.5s ease-in-out infinite;
+    0 0 40px rgba(255, 255, 255, 0.12),
+    0 0 80px rgba(255, 255, 255, 0.06),
+    0 24px 60px rgba(0, 0, 0, 0.6);
+  transform: translateZ(0);
+  contain: layout style paint;
 }
 
 .videoFrame {
@@ -104,13 +76,13 @@
   border-radius: inherit;
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.08),
-    inset 0 0 60px rgba(0, 0, 0, 0.35);
+    inset 0 0 40px rgba(0, 0, 0, 0.25);
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.06) 0%,
     transparent 28%,
     transparent 72%,
-    rgba(255, 255, 255, 0.06) 100%
+    rgba(255, 255, 255, 0.04) 100%
   );
   z-index: 1;
 }
@@ -124,7 +96,7 @@
   margin: 0;
   padding: 8px 14px;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.14);
   color: rgba(255, 255, 255, 0.88);
   font-family: var(--font);
@@ -132,7 +104,6 @@
   font-weight: 500;
   letter-spacing: 0.04em;
   pointer-events: none;
-  backdrop-filter: blur(6px);
 }
 
 .finishControls {
@@ -146,9 +117,8 @@
   margin: 16px auto 0;
   padding: 8px 10px;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.62);
+  background: rgba(0, 0, 0, 0.78);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(8px);
   animation: fadeIn 0.3s ease;
 }
 
@@ -162,9 +132,8 @@
   margin: 16px auto 0;
   padding: 10px 12px;
   border-radius: 16px;
-  background: rgba(0, 0, 0, 0.62);
+  background: rgba(0, 0, 0, 0.78);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(8px);
   animation: fadeIn 0.3s ease;
 }
 
@@ -287,9 +256,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.65);
   border: 1px solid rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(6px);
   transition: transform 0.2s ease, background 0.2s ease;
 }
 
@@ -320,33 +288,6 @@
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
-}
-
-@keyframes auraPulse {
-  0%, 100% { opacity: 0.75; transform: scale(0.98); }
-  50% { opacity: 1; transform: scale(1.06); }
-}
-
-@keyframes smokeDrift {
-  0%, 100% { transform: scale(1) translate(0, 0); opacity: 0.75; }
-  50% { transform: scale(1.08) translate(1%, -1.5%); opacity: 1; }
-}
-
-@keyframes frameGlow {
-  0%, 100% {
-    box-shadow:
-      0 0 50px rgba(255, 255, 255, 0.14),
-      0 0 120px rgba(255, 255, 255, 0.08),
-      0 0 200px rgba(255, 255, 255, 0.04),
-      0 30px 80px rgba(0, 0, 0, 0.65);
-  }
-  50% {
-    box-shadow:
-      0 0 80px rgba(255, 255, 255, 0.24),
-      0 0 160px rgba(255, 255, 255, 0.12),
-      0 0 240px rgba(255, 255, 255, 0.07),
-      0 30px 80px rgba(0, 0, 0, 0.65);
-  }
 }
 
 .ctaCard {
@@ -394,16 +335,15 @@
 }
 
 .ctaSecondary {
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.55);
   color: var(--text);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(6px);
   animation: btnIn 0.4s ease;
 }
 
 .ctaSecondary:hover {
   border-color: rgba(255, 255, 255, 0.4);
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.72);
 }
 
 @keyframes btnIn {
@@ -444,10 +384,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .auraCore,
-  .auraSmoke,
-  .auraSmokeSoft,
-  .videoWrap {
+  .ctaBelow,
+  .playerBar,
+  .finishControls,
+  .ctaPrimary,
+  .ctaSecondary {
     animation: none;
   }
 }

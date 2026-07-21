@@ -219,11 +219,7 @@ export default function IntroPage({ onContinue }) {
 
       <main className={styles.main}>
         <div className={styles.stage}>
-          <div className={styles.aura} aria-hidden="true">
-            <span className={styles.auraCore} />
-            <span className={styles.auraSmoke} />
-            <span className={styles.auraSmokeSoft} />
-          </div>
+          <div className={styles.aura} aria-hidden="true" />
 
           <div className={styles.videoWrap}>
             <iframe
