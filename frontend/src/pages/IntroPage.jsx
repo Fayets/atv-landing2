@@ -40,7 +40,7 @@ function formatTime(totalSeconds) {
   return `${m}:${String(r).padStart(2, '0')}`
 }
 
-export default function IntroPage({ onContinue }) {
+export default function IntroPage({ onContinue, allowSeekForward = false }) {
   const iframeRef = useRef(null)
   const playerRef = useRef(null)
   const maxWatchedRef = useRef(0)
@@ -153,7 +153,9 @@ export default function IntroPage({ onContinue }) {
         }
 
         player.on('timeupdate', onTime)
-        player.on('seeked', blockSeekForward)
+        if (!allowSeekForward) {
+          player.on('seeked', blockSeekForward)
+        }
         player.on('ended', onEnded)
         player.on('play', onPlay)
         player.on('pause', onPause)
@@ -176,7 +178,21 @@ export default function IntroPage({ onContinue }) {
       }
       playerRef.current = null
     }
-  }, [])
+  }, [allowSeekForward])
+
+  const handleProgressSeek = async (event) => {
+    if (!allowSeekForward || !duration) return
+    const player = playerRef.current
+    if (!player) return
+    const rect = event.currentTarget.getBoundingClientRect()
+    const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width))
+    const target = ratio * duration
+    try {
+      await player.setCurrentTime(target)
+      maxWatchedRef.current = Math.max(maxWatchedRef.current, target)
+      setCurrentTime(target)
+    } catch { /* ignore */ }
+  }
 
   const handleStart = async () => {
     try {
@@ -268,7 +284,16 @@ export default function IntroPage({ onContinue }) {
               </button>
 
               <div className={styles.timeBlock}>
-                <div className={styles.progressTrack} aria-hidden="true">
+                <div
+                  className={`${styles.progressTrack} ${allowSeekForward ? styles.progressTrackSeekable : ''}`}
+                  aria-hidden={!allowSeekForward}
+                  role={allowSeekForward ? 'slider' : undefined}
+                  aria-valuemin={0}
+                  aria-valuemax={duration}
+                  aria-valuenow={currentTime}
+                  aria-label={allowSeekForward ? 'Posición del video' : undefined}
+                  onClick={allowSeekForward ? handleProgressSeek : undefined}
+                >
                   <div className={styles.progressFill} style={{ width: `${progress}%` }} />
                 </div>
                 <div className={styles.timeRow}>
@@ -293,7 +318,7 @@ export default function IntroPage({ onContinue }) {
             </div>
           )}
 
-          {showCta && (
+          {showCta ? (
             <div className={styles.ctaBelow} role="dialog" aria-label="Opciones">
               <a
                 href={CALENDLY_URL}
@@ -308,6 +333,25 @@ export default function IntroPage({ onContinue }) {
                   Continuar con el curso (+11 horas)
                 </button>
               )}
+            </div>
+          ) : (
+            <div className={styles.calendlyBlock}>
+              <div className={styles.calendlyCopy}>
+                <p className={styles.calendlyHeadline}>
+                  Agendá una llamada y auditamos tu negocio juntos
+                </p>
+                <p className={styles.calendlyText}>
+                  Si querés solucionar este problema en tu negocio, reservá un espacio conmigo.
+                </p>
+              </div>
+              <a
+                href={CALENDLY_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.calendlyBtn}
+              >
+                Agendar llamada
+              </a>
             </div>
           )}
         </div>

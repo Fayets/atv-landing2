@@ -14,4 +14,28 @@ def init_db():
         user=config("DB_USER"),
         password=config("DB_PASSWORD"),
     )
-    db.generate_mapping(create_tables=True)
+    _migrate()
+    db.generate_mapping(create_tables=True, check_tables=False)
+
+
+def _migrate():
+    import psycopg2
+    from psycopg2 import sql
+
+    conn = psycopg2.connect(
+        host=config("DB_HOST"),
+        port=int(config("DB_PORT", default=5432)),
+        dbname=config("DB_NAME"),
+        user=config("DB_USER"),
+        password=config("DB_PASSWORD"),
+    )
+    try:
+        with conn, conn.cursor() as cur:
+            cur.execute(
+                sql.SQL('ALTER TABLE {}.{} ADD COLUMN IF NOT EXISTS access_count INTEGER NOT NULL DEFAULT 0').format(
+                    sql.Identifier(DB_SCHEMA),
+                    sql.Identifier('leads'),
+                )
+            )
+    finally:
+        conn.close()

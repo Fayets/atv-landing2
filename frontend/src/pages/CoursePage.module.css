@@ -240,6 +240,15 @@
   animation-duration: 2.2s;
 }
 
+.sidebarLessonVsl .sidebarLessonTitle {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.sidebarLessonVsl .sidebarNum {
+  color: var(--red-accent);
+}
+
 @keyframes ctaTitleShine {
   0%, 55% { background-position: 100% 0; }
   75%, 100% { background-position: -100% 0; }
@@ -683,6 +692,36 @@
   letter-spacing: 0.01em;
   color: var(--text);
   opacity: 0.82;
+}
+
+.vslCta {
+  display: flex;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.vslCtaBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px 28px;
+  border-radius: 999px;
+  background: var(--red-accent);
+  color: #fff;
+  font-family: var(--font);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(176, 69, 69, 0.35);
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.vslCtaBtn:hover {
+  background: var(--login-red-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 30px rgba(176, 69, 69, 0.45);
 }
 
 /* CIERRE */

@@ -6,6 +6,9 @@ const CoursePage = lazy(() => import('./pages/CoursePage'))
 
 const SESSION_KEY = 'atv_webinar_user'
 const BASE = '/course'
+/** Clave de prueba: siempre muestra la intro al loguear. Sacar cuando ya no haga falta. */
+const TEST_INTRO_CODE = 'ATV-INTRO'
+const TEST_INTRO_SKIP_KEY = 'atv_test_intro_skipped'
 
 function introPendingKey(code) {
   return `atv_intro_pending_${code}`
@@ -15,35 +18,39 @@ function introDoneKey(code) {
   return `atv_intro_done_${code}`
 }
 
+function isTestIntroCode(code) {
+  return String(code || '').toUpperCase() === TEST_INTRO_CODE
+}
+
 function stripBase(path) {
   const p = path.startsWith(BASE) ? path.slice(BASE.length) : path
   return p === '' ? '/' : p
 }
 
-function readSession() {
-  try {
-    const s = sessionStorage.getItem(SESSION_KEY)
-    return s ? JSON.parse(s) : null
-  } catch { return null }
+function initialPath() {
+  const current = stripBase(window.location.pathname)
+  if (current === '/contenido' || current === '/intro') return '/'
+  return current
 }
 
 function shouldShowIntro(user) {
   if (!user?.access_code) return false
+
+  if (isTestIntroCode(user.access_code)) {
+    return sessionStorage.getItem(TEST_INTRO_SKIP_KEY) !== '1'
+  }
+
   if (localStorage.getItem(introDoneKey(user.access_code))) return false
   return localStorage.getItem(introPendingKey(user.access_code)) === '1'
 }
 
-function resolveInitialPath(user) {
-  const current = stripBase(window.location.pathname)
-  if (!user) return current === '/contenido' || current === '/intro' ? '/' : current
-  if (shouldShowIntro(user)) return '/intro'
-  if (current === '/intro') return '/contenido'
-  return current === '/' ? '/contenido' : current
-}
-
 export default function App() {
-  const [user, setUser] = useState(() => readSession())
-  const [path, setPath] = useState(() => resolveInitialPath(readSession()))
+  const [user, setUser] = useState(null)
+  const [path, setPath] = useState(initialPath)
+
+  useEffect(() => {
+    sessionStorage.removeItem(SESSION_KEY)
+  }, [])
 
   useEffect(() => {
     const sync = () => setPath(stripBase(window.location.pathname))
@@ -66,8 +73,13 @@ export default function App() {
   }
 
   const handleLogin = (userData) => {
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(userData))
     setUser(userData)
+
+    if (isTestIntroCode(userData.access_code)) {
+      sessionStorage.removeItem(TEST_INTRO_SKIP_KEY)
+      goTo('/intro')
+      return
+    }
 
     if (userData.is_first_login && userData.access_code) {
       localStorage.setItem(introPendingKey(userData.access_code), '1')
@@ -85,6 +97,12 @@ export default function App() {
   }
 
   const handleIntroContinue = () => {
+    if (isTestIntroCode(user?.access_code)) {
+      sessionStorage.setItem(TEST_INTRO_SKIP_KEY, '1')
+      goTo('/contenido')
+      return
+    }
+
     if (user?.access_code) {
       localStorage.setItem(introDoneKey(user.access_code), '1')
       localStorage.removeItem(introPendingKey(user.access_code))
@@ -94,6 +112,7 @@ export default function App() {
 
   const handleLogout = () => {
     sessionStorage.removeItem(SESSION_KEY)
+    sessionStorage.removeItem(TEST_INTRO_SKIP_KEY)
     setUser(null)
     goTo('/')
   }
@@ -103,7 +122,13 @@ export default function App() {
   }
 
   if (path === '/intro' || shouldShowIntro(user)) {
-    return <IntroPage user={user} onContinue={handleIntroContinue} />
+    return (
+      <IntroPage
+        user={user}
+        onContinue={handleIntroContinue}
+        allowSeekForward={isTestIntroCode(user?.access_code)}
+      />
+    )
   }
 
   return (

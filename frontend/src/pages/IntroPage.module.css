@@ -1,7 +1,7 @@
 .page {
   position: relative;
   isolation: isolate;
-  min-height: 100dvh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -26,23 +26,30 @@
   position: relative;
   z-index: 2;
   flex: 1;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 28px 20px 36px;
+  padding: 12px 16px 16px;
+  overflow: hidden;
 }
 
 .stage {
   position: relative;
-  width: min(100%, 1280px);
-  padding: 36px 28px;
+  width: min(100%, calc((100dvh - 200px) * 16 / 9), 1280px);
+  margin: 0 auto;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 100%;
 }
 
 /* Glow estático con gradientes — sin filter:blur ni animaciones (mucho más fluido) */
 .aura {
   pointer-events: none;
   position: absolute;
-  inset: -8% -4%;
+  inset: -6% -3%;
   z-index: 0;
   border-radius: 40px;
   background:
@@ -128,9 +135,9 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  width: min(100%, 720px);
-  margin: 16px auto 0;
-  padding: 10px 12px;
+  width: 100%;
+  margin: 0;
+  padding: 8px 12px;
   border-radius: 16px;
   background: rgba(0, 0, 0, 0.78);
   border: 1px solid rgba(255, 255, 255, 0.14);
@@ -152,6 +159,16 @@
   background: rgba(255, 255, 255, 0.12);
   overflow: hidden;
   pointer-events: none;
+}
+
+.progressTrackSeekable {
+  pointer-events: auto;
+  cursor: pointer;
+  height: 6px;
+}
+
+.progressTrackSeekable:hover {
+  background: rgba(255, 255, 255, 0.18);
 }
 
 .progressFill {
@@ -273,15 +290,120 @@
   background: rgba(176, 69, 69, 0.55);
 }
 
+.calendlyBlock {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  margin: 0;
+  padding: 14px 18px;
+  text-align: left;
+  border-radius: 14px;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(176, 69, 69, 0.14), transparent 70%),
+    rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(176, 69, 69, 0.35);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+    0 8px 28px rgba(0, 0, 0, 0.4),
+    0 0 36px rgba(176, 69, 69, 0.1);
+}
+
+.calendlyCopy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.calendlyHeadline {
+  margin: 0;
+  font-family: var(--font);
+  font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  color: #fff;
+}
+
+.calendlyText {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 400;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.calendlyBtn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 200px;
+  min-height: 54px;
+  padding: 15px 32px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.45);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  text-shadow: none;
+  transition: transform 0.2s ease;
+  animation: calendlyBtnBreath 2.6s ease-in-out infinite;
+}
+
+.calendlyBtn:hover {
+  transform: translateY(-1px);
+  animation-play-state: paused;
+  opacity: 1;
+  color: #fff;
+  border-color: rgba(212, 100, 100, 0.9);
+  background: rgba(176, 69, 69, 0.22);
+  box-shadow: 0 0 32px rgba(176, 69, 69, 0.38);
+  text-shadow: 0 0 14px rgba(255, 255, 255, 0.95);
+}
+
+@keyframes calendlyBtnBreath {
+  0%, 100% {
+    opacity: 0.65;
+    color: rgba(255, 255, 255, 0.45);
+    border-color: rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.03);
+    box-shadow: 0 0 0 rgba(176, 69, 69, 0);
+    text-shadow: none;
+  }
+  50% {
+    opacity: 1;
+    color: #fff;
+    border-color: rgba(212, 100, 100, 0.75);
+    background: rgba(176, 69, 69, 0.16);
+    box-shadow: 0 0 26px rgba(176, 69, 69, 0.42);
+    text-shadow:
+      0 0 10px rgba(255, 255, 255, 0.95),
+      0 0 22px rgba(255, 255, 255, 0.55);
+  }
+}
+
 .ctaBelow {
   position: relative;
   z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  width: min(100%, 420px);
-  margin: 22px auto 0;
+  gap: 10px;
+  width: 100%;
+  margin: 0;
   animation: fadeIn 0.35s ease;
 }
 
@@ -359,16 +481,32 @@
 
 @media (max-width: 640px) {
   .main {
-    padding: 20px 12px 28px;
-    align-items: flex-start;
+    padding: 10px 12px 12px;
+    align-items: center;
   }
 
   .stage {
-    padding: 16px;
+    width: 100%;
+  }
+
+  .videoWrap {
+    width: 100%;
+  }
+
+  .calendlyBlock {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    padding: 14px 16px;
+  }
+
+  .calendlyBtn {
+    width: 100%;
+    min-width: 0;
   }
 
   .ctaBelow {
-    margin-top: 16px;
+    margin-top: 0;
   }
 
   .playerBar {
@@ -388,7 +526,9 @@
   .playerBar,
   .finishControls,
   .ctaPrimary,
-  .ctaSecondary {
+  .ctaSecondary,
+  .calendlyBtn {
     animation: none;
+    opacity: 1;
   }
 }

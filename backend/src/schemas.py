@@ -13,3 +13,4 @@ class LeadOut(BaseModel):
     access_code: str
     created_at: datetime
     last_access: Optional[datetime] = None
+    access_count: int = 0

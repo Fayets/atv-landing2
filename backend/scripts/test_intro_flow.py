@@ -58,20 +58,20 @@ def main():
     # 1) Lead viejo → NO first login
     r1 = svc.login(LoginRequest(access_code=OLD_CODE))
     pp("Lead VIEJO - login", r1)
-    ok1 = r1 is not None and r1.get("is_first_login") is False
-    results.append(("Viejo: is_first_login=False", ok1))
+    ok1 = r1 is not None and r1.get("is_first_login") is False and r1.get("access_count") == 1
+    results.append(("Viejo: is_first_login=False, access_count=1", ok1))
 
     # 2) Lead nuevo 1ra vez → first login
     r2 = svc.login(LoginRequest(access_code=NEW_CODE))
     pp("Lead NUEVO - 1er login", r2)
-    ok2 = r2 is not None and r2.get("is_first_login") is True
-    results.append(("Nuevo 1er login: is_first_login=True", ok2))
+    ok2 = r2 is not None and r2.get("is_first_login") is True and r2.get("access_count") == 1
+    results.append(("Nuevo 1er login: is_first_login=True, access_count=1", ok2))
 
     # 3) Lead nuevo 2da vez → ya no first login
     r3 = svc.login(LoginRequest(access_code=NEW_CODE))
     pp("Lead NUEVO - 2do login", r3)
-    ok3 = r3 is not None and r3.get("is_first_login") is False
-    results.append(("Nuevo 2do login: is_first_login=False", ok3))
+    ok3 = r3 is not None and r3.get("is_first_login") is False and r3.get("access_count") == 2
+    results.append(("Nuevo 2do login: is_first_login=False, access_count=2", ok3))
 
     # 4) Clave inválida
     r4 = svc.login(LoginRequest(access_code="NO-EXISTE-XYZ"))

@@ -114,7 +114,19 @@ function getEmbedUrl(url) {
 
 const WA_NUMBER = '5491162626702'
 const CALENDLY_URL = 'https://calendly.com/aumentatuvalor/llamada-de-conocimeinto-atv'
-const INSTAGRAM_URL = 'https://www.instagram.com/juanxcarrizo'
+
+const LESSON_CLOSING = [
+  'si llegaste hasta acá, ya sabés qué hacer',
+  'el tema es que saberlo no alcanza, sin criterio aplicado a tu negocio seguís adivinando 6 meses más',
+  'trabajamos con más de 120 negocios llevándolas a $30k–$150k por mes con orgánico',
+  'si querés que veamos tu caso, agendá acá',
+]
+const VSL_VIMEO_URL = 'https://vimeo.com/1210850489'
+
+function vslLessonTitle(lesson, moduleTitle) {
+  const label = lesson?.vslTitle ?? moduleTitle
+  return `Agenda tu llamada de: ${label}`
+}
 
 const MODULES = [
   {
@@ -147,6 +159,7 @@ const MODULES = [
         poster: `${import.meta.env.BASE_URL}cta/foto1.png`,
         resources: [],
       },
+      { vsl: true, vslTitle: 'BASES DE NEGOCIOS', resources: [] },
     ],
     resources: [],
   },
@@ -212,6 +225,7 @@ const MODULES = [
         poster: `${import.meta.env.BASE_URL}cta/foto2.png`,
         resources: [],
       },
+      { vsl: true, vslTitle: 'MARKETING/CONTENIDO', resources: [] },
     ],
     resources: [],
   },
@@ -254,6 +268,7 @@ const MODULES = [
         poster: `${import.meta.env.BASE_URL}cta/foto3.png`,
         resources: [],
       },
+      { vsl: true, resources: [] },
     ],
     resources: [],
   },
@@ -284,11 +299,12 @@ const MODULES = [
         resources: [],
       },
       {
-        title: 'Cómo atraer leads de calidad',
+        title: 'Cómo atraer leads de calidanec',
         cta: true,
         poster: `${import.meta.env.BASE_URL}cta/foto4.png`,
         resources: [],
       },
+      { vsl: true, vslTitle: 'GESTION DE EQUIPO', resources: [] },
     ],
     resources: [],
   },
@@ -299,7 +315,6 @@ const MODULES = [
       {
         title: 'Cómo usar Claude para mejorar el contenido',
         url: 'https://www.loom.com/share/8f524d28cb3f4a0bb8412fd8d85c302d',
-        description: 'En esta clase te muestro cómo usar Claude para construir tu contenido en base a datos reales.\n\nVas a aprender a unir los tres tipos de marketing datos, estructura y psicología para dejar de adivinar qué subir.\n\nLo trabajo en vivo con un caso real cargando llamadas y formularios de onboarding para sacar el avatar y alinear todo el contenido.\n\nTe recomiendo verla con la compu al lado e ir aplicando cada paso mientras avanza.',
         resources: [],
       },
       {
@@ -322,6 +337,7 @@ const MODULES = [
         url: 'https://www.loom.com/share/1f23a048e9594230a7fa77dab083ddeb',
         resources: [],
       },
+      { vsl: true, vslTitle: 'PRODUCTO/SISTEMAS/IA', resources: [] },
     ],
     resources: [],
   },
@@ -336,14 +352,18 @@ export default function CoursePage({ user, onLogout }) {
   const activeModule = MODULES.find(m => m.id === selected.moduleId)
   const activeLesson = activeModule?.lessons[selected.lessonIndex]
   const isCta = Boolean(activeLesson?.cta)
+  const isVsl = Boolean(activeLesson?.vsl)
+  const displayTitle = isVsl
+    ? vslLessonTitle(activeLesson, activeModule?.title ?? '')
+    : activeLesson?.title
 
   const lessonNumber = MODULES
     .slice(0, MODULES.indexOf(activeModule))
     .reduce((acc, m) => acc + m.lessons.length, 0) + selected.lessonIndex + 1
 
-  const lessonUrl = activeLesson?.url
+  const lessonUrl = isVsl ? VSL_VIMEO_URL : activeLesson?.url
   const embedUrl = getEmbedUrl(lessonUrl)
-  const hasVideo = !isCta && lessonUrl && lessonUrl !== '#'
+  const hasVideo = isVsl || (!isCta && lessonUrl && lessonUrl !== '#')
 
   const openWhatsAppCta = useCallback((title) => {
     const href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(
@@ -485,15 +505,18 @@ export default function CoursePage({ user, onLogout }) {
                   {mod.lessons.map((lesson, i) => {
                     const isActive = selected.moduleId === mod.id && selected.lessonIndex === i
                     const isLessonCta = Boolean(lesson.cta)
+                    const isLessonVsl = Boolean(lesson.vsl)
+                    const lessonTitle = isLessonVsl ? vslLessonTitle(lesson, mod.title) : lesson.title
                     const globalNum = MODULES
                       .slice(0, MODULES.indexOf(mod))
                       .reduce((acc, m) => acc + m.lessons.length, 0) + i + 1
                     return (
-                      <li key={i}>
+                      <li key={isLessonVsl ? `${mod.id}-vsl` : i}>
                         <button
                           className={[
                             styles.sidebarLesson,
                             isLessonCta ? styles.sidebarLessonCta : '',
+                            isLessonVsl ? styles.sidebarLessonVsl : '',
                             isActive && !isLessonCta ? styles.sidebarLessonActive : '',
                           ].filter(Boolean).join(' ')}
                           onClick={() => {
@@ -502,7 +525,7 @@ export default function CoursePage({ user, onLogout }) {
                           }}
                         >
                           <span className={styles.sidebarNum}>{String(globalNum).padStart(2, '0')}</span>
-                          <span className={styles.sidebarLessonTitle}>{lesson.title}</span>
+                          <span className={styles.sidebarLessonTitle}>{lessonTitle}</span>
                         </button>
                       </li>
                     )
@@ -530,7 +553,7 @@ export default function CoursePage({ user, onLogout }) {
               </p>
               <h1 className={styles.infoTitle}>
                 <span className={styles.infoNum}>{String(lessonNumber).padStart(2, '0')}.</span>
-                {activeLesson?.title}
+                {displayTitle}
               </h1>
             </div>
 
@@ -543,7 +566,7 @@ export default function CoursePage({ user, onLogout }) {
                       <iframe
                         src={`${embedUrl}${embedUrl.includes('?') ? '&' : '?'}autoplay=1`}
                         className={styles.embed}
-                        title={activeLesson.title}
+                        title={displayTitle}
                         frameBorder="0"
                         allowFullScreen
                         allow="autoplay; fullscreen; picture-in-picture"
@@ -554,7 +577,7 @@ export default function CoursePage({ user, onLogout }) {
                         type="button"
                         className={styles.playerPoster}
                         onClick={handlePlay}
-                        aria-label={isCta ? `Reclama la clase: ${activeLesson.title}` : `Reproducir ${activeLesson.title}`}
+                        aria-label={isCta ? `Reclama la clase: ${activeLesson.title}` : `Reproducir ${displayTitle}`}
                       >
                         {(isCta ? activeLesson.poster : poster) && (
                           <img
@@ -590,37 +613,19 @@ export default function CoursePage({ user, onLogout }) {
               </div>
             )}
 
-            {!isCta && activeLesson?.description && (
-              <div className={styles.description}>
-                {activeLesson.description.split('\n\n').map((paragraph, i) => (
-                  <p key={i} className={styles.descText}>{paragraph}</p>
+            {!isCta && (
+              <div className={styles.closing}>
+                {LESSON_CLOSING.map((paragraph, i) => (
+                  <p key={i} className={styles.closingText}>{paragraph}</p>
                 ))}
+                <p className={styles.closingText}>
+                  <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer">{CALENDLY_URL}</a>
+                </p>
               </div>
             )}
 
-            <div className={styles.closing}>
-              <p className={styles.closingText}>
-                Si querés solucionar este problema, agendá una llamada y auditamos tu negocio:{' '}
-                <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer">{CALENDLY_URL}</a>
-              </p>
-              <p className={styles.closingText}>
-                Si la clase te gustó, sacá una foto y compartila por Instagram etiquetándome :)
-              </p>
-              <p className={styles.closingText}>
-                Mi Instagram:{' '}
-                <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">@juanxcarrizo</a>
-              </p>
-              <p className={styles.closingText}>
-                Es la única forma que tengo de sentir que esta clase sirvió y me ayuda mucho saber que te ayudó.
-              </p>
-              <p className={styles.closingText}>
-                Gracias, gracias, gracias.
-              </p>
-              <p className={styles.closingSign}>Juan</p>
-            </div>
-
             {/* RECURSOS */}
-            {!isCta && activeResources.length > 0 && (
+            {!isCta && !isVsl && activeResources.length > 0 && (
               <div className={styles.resources}>
                 <p className={styles.resourcesLabel}>RECURSOS</p>
                 <ul className={styles.resourcesList}>
@@ -628,7 +633,7 @@ export default function CoursePage({ user, onLogout }) {
                     <li key={i}>
                       <a
                         href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(
-                          `Hola Juan, necesito el recurso "${r.title}" del video "${activeLesson.title}"`
+                          `Hola Juan, necesito el recurso "${r.title}" del video "${displayTitle}"`
                         )}`}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -649,7 +654,7 @@ export default function CoursePage({ user, onLogout }) {
 
       <a
         href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(
-          `Hola Juan, estuve viendo el módulo de ${activeModule?.title} — "${activeLesson?.title}" y me surgió una duda.`
+          `Hola Juan, estuve viendo el módulo de ${activeModule?.title} — "${displayTitle}" y me surgió una duda.`
         )}`}
         target="_blank"
         rel="noopener noreferrer"

@@ -10,3 +10,4 @@ class Lead(db.Entity):
     access_code = Required(str, unique=True)
     created_at  = Required(datetime, default=datetime.utcnow)
     last_access = Optional(datetime)
+    access_count = Required(int, default=0)
